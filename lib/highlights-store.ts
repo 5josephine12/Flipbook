@@ -163,9 +163,7 @@ export const DEFAULT_GALLERY_GIFS = [
   { url: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/interstellar-ghCBKYJaKFLApSdIFjKZtuERCj1b4o.gif', title: 'Interstellar' },
   { url: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/_%20%282%29-VViIT5ziFOpKOiTDTBjrcI61uXyKA9.gif', title: 'Butterflies' },
   
-  // Anime eye and Ghibli collection
-  { url: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3431a7c1be0499c341704fba507efbc7.gif-dHxdIF6b5DpNHG0gWBr88tynlkYhH0.jpeg', title: 'Anime Eye' },
-  { url: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/alex-gallucci-tv-zoom.gif-WlpRyDV5l3UsxOnsJFpSDWZbCKx9Pm.jpeg', title: 'Gundam TV' },
+  // Ghibli and anime collection (animated GIFs only)
   { url: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/spirited-away-anime-1NOlb2HK3olNitWlYdR2LdDGYc6JDP.gif', title: 'Spirited Away Doors' },
   { url: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/download-tEqmvDcumYNrfhvgEan8F81TazRYiG.gif', title: 'No-Face' },
   { url: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/source-dex8lNUn41iU8iZv1RTQNmAr4XMQgP.gif', title: 'Unicorn Gundam' },
