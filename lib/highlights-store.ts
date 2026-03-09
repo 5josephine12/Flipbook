@@ -171,4 +171,5 @@ export const DEFAULT_GALLERY_GIFS = [
   { url: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Kikis%2BDelivery%2BService-7q6uyn4ynjF79elVTtAsPmxCPkyBkq.gif', title: 'Kiki Flying' },
   { url: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/studio-ghibli-gif-8-s8y2DdBXg9iWFAJv8TkYNWCU2c1omz.gif', title: 'Ponyo' },
   { url: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/arkerxx-jao-gundam3-pLE5A8lKfJynfEwOYPngZJuYnZc3GT.gif', title: 'Gundam Sketch' },
+  { url: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image01-LQHh5lIKQulQzeaxLrUDopdlxpVKA0.gif', title: 'Totoro Roar' },
 ]
