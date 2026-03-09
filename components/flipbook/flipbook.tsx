@@ -45,75 +45,53 @@ export function Flipbook({
   // Number of cascading frames to show in waterfall mode
   const WATERFALL_VISIBLE_COUNT = 5
   
+  // Get max visible frames and cleanup time based on animation mode
+  const getAnimationConfig = (mode: AnimationMode) => {
+    switch (mode) {
+      case 'waterfall':
+        return { maxFrames: WATERFALL_VISIBLE_COUNT, cleanupTime: 800 }
+      case 'carousel':
+        return { maxFrames: 4, cleanupTime: 600 }
+      case 'shuffle':
+        return { maxFrames: 3, cleanupTime: 500 }
+      case 'fade':
+        return { maxFrames: 2, cleanupTime: 400 }
+      default:
+        return { maxFrames: 2, cleanupTime: 450 }
+    }
+  }
+  
   // Track flying cards for exit animations
   useEffect(() => {
     if (prevFrameRef.current !== currentFrame && frames[prevFrameRef.current]) {
       const diff = currentFrame - prevFrameRef.current
       const dir = diff > 0 ? 'forward' : 'backward'
+      const frameIdx = prevFrameRef.current
+      const config = getAnimationConfig(animationMode)
       
-      if (animationMode === 'waterfall') {
-        // Waterfall mode: create cascading card that drops down
-        const frameIdx = prevFrameRef.current
-        if (frames[frameIdx]) {
-          const newFlying = {
-            id: Date.now() + Math.random(),
-            frame: frames[frameIdx],
-            frameIndex: frameIdx,
-            direction: dir,
-            randomX: (Math.random() - 0.5) * 8,
-            randomY: 0,
-            randomRotateX: 0,
-            randomRotateZ: (Math.random() - 0.5) * 4,
-            randomScale: 1,
-            randomDuration: 0.5
-          }
-          
-          // Keep more frames visible for waterfall cascade effect
-          setFlyingFrames(prev => {
-            const limited = prev.length >= WATERFALL_VISIBLE_COUNT ? prev.slice(-(WATERFALL_VISIBLE_COUNT - 1)) : prev
-            return [...limited, newFlying]
-          })
-          
-          // Longer cleanup for waterfall - let cards fully cascade out
-          const flyingId = newFlying.id
-          setTimeout(() => {
-            setFlyingFrames(prev => prev.filter(f => f.id !== flyingId))
-          }, 800)
+      if (frames[frameIdx]) {
+        const newFlying = {
+          id: Date.now() + Math.random(),
+          frame: frames[frameIdx],
+          frameIndex: frameIdx,
+          direction: dir,
+          randomX: (Math.random() - 0.5) * (animationMode === 'shuffle' ? 30 : 8),
+          randomY: (Math.random() - 0.5) * 8,
+          randomRotateX: animationMode === 'classic' ? 70 + Math.random() * 15 : 0,
+          randomRotateZ: (Math.random() - 0.5) * (animationMode === 'shuffle' ? 15 : 5),
+          randomScale: 0.85 + Math.random() * 0.1,
+          randomDuration: animationMode === 'fade' ? 0.25 : 0.3 + Math.random() * 0.08
         }
-      } else {
-        // Classic mode: single flying frame with peel animation
-        const frameIdx = prevFrameRef.current
-        if (frames[frameIdx]) {
-          const randomX = (Math.random() - 0.5) * 20
-          const randomY = (Math.random() - 0.5) * 8
-          const randomRotateX = 70 + Math.random() * 15
-          const randomRotateZ = (Math.random() - 0.5) * 5
-          const randomScale = 0.85 + Math.random() * 0.1
-          const randomDuration = 0.3 + Math.random() * 0.08
-          
-          const newFlying = {
-            id: Date.now() + Math.random(),
-            frame: frames[frameIdx],
-            frameIndex: frameIdx,
-            direction: dir,
-            randomX,
-            randomY,
-            randomRotateX,
-            randomRotateZ,
-            randomScale,
-            randomDuration
-          }
-          
-          setFlyingFrames(prev => {
-            const limited = prev.length >= 2 ? prev.slice(-1) : prev
-            return [...limited, newFlying]
-          })
-          
-          const flyingId = newFlying.id
-          setTimeout(() => {
-            setFlyingFrames(prev => prev.filter(f => f.id !== flyingId))
-          }, 450)
-        }
+        
+        setFlyingFrames(prev => {
+          const limited = prev.length >= config.maxFrames ? prev.slice(-(config.maxFrames - 1)) : prev
+          return [...limited, newFlying]
+        })
+        
+        const flyingId = newFlying.id
+        setTimeout(() => {
+          setFlyingFrames(prev => prev.filter(f => f.id !== flyingId))
+        }, config.cleanupTime)
       }
     }
     prevFrameRef.current = currentFrame
@@ -175,42 +153,113 @@ export function Flipbook({
   })
   
   // Waterfall/Giphoscope animation - cards cascade down like a waterfall
-  const getWaterfallAnimation = (flying: typeof flyingFrames[0], index: number, total: number) => {
-    // Each card in the cascade gets progressively more offset
-    const cascadeOffset = index * 12 // vertical spacing between cards
-    const rotateAmount = (flying.randomRotateZ || 0) + (index * 1.5) // slight rotation accumulation
-    const scaleReduction = 1 - (index * 0.02) // cards get slightly smaller as they fall
-    const opacityReduction = 1 - (index * 0.15) // cards fade as they cascade
+  const getWaterfallAnimation = (flying: typeof flyingFrames[0], index: number) => {
+    const cascadeOffset = index * 12
+    const rotateAmount = (flying.randomRotateZ || 0) + (index * 1.5)
+    const scaleReduction = 1 - (index * 0.02)
+    const opacityReduction = 1 - (index * 0.15)
     
     return {
-      initial: {
-        x: 0,
-        y: 0,
-        rotateZ: 0,
-        rotateX: -15, // slight tilt back like a card being flipped
-        scale: 1,
-        opacity: 1,
-      },
+      initial: { x: 0, y: 0, rotateZ: 0, rotateX: -15, scale: 1, opacity: 1 },
       animate: {
         x: (flying.randomX || 0) + (flying.direction === 'forward' ? -3 : 3) * index,
-        y: cascadeOffset + 120, // drop down
+        y: cascadeOffset + 120,
         rotateZ: rotateAmount * (flying.direction === 'forward' ? -1 : 1),
-        rotateX: 5 + index * 2, // tilt forward as falling
+        rotateX: 5 + index * 2,
         scale: scaleReduction,
         opacity: Math.max(0, opacityReduction - 0.1),
         transition: {
           duration: 0.6,
-          ease: [0.25, 0.46, 0.45, 0.94], // ease-out-quad for natural fall
-          y: { 
-            duration: 0.55, 
-            ease: [0.34, 1.56, 0.64, 1] // bouncy overshoot
-          },
+          ease: [0.25, 0.46, 0.45, 0.94],
+          y: { duration: 0.55, ease: [0.34, 1.56, 0.64, 1] },
           rotateZ: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
           rotateX: { duration: 0.4, ease: 'easeOut' },
           opacity: { duration: 0.4, delay: 0.2, ease: 'easeIn' },
           scale: { duration: 0.5, ease: 'easeOut' }
         }
       }
+    }
+  }
+  
+  // Carousel animation - cards rotate around like a 3D carousel
+  const getCarouselAnimation = (flying: typeof flyingFrames[0], index: number) => {
+    const rotateY = (flying.direction === 'forward' ? -90 : 90) + index * 15
+    const translateZ = -100 - index * 30
+    const opacityReduction = 1 - (index * 0.25)
+    
+    return {
+      initial: { rotateY: 0, z: 0, scale: 1, opacity: 1 },
+      animate: {
+        rotateY,
+        z: translateZ,
+        scale: 0.8 - index * 0.05,
+        opacity: Math.max(0, opacityReduction),
+        transition: {
+          duration: 0.5,
+          ease: [0.32, 0.72, 0, 1],
+          rotateY: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
+          z: { duration: 0.4, ease: 'easeOut' },
+          opacity: { duration: 0.35, delay: 0.1, ease: 'easeIn' }
+        }
+      }
+    }
+  }
+  
+  // Shuffle animation - cards shuffle to the side like a deck of cards
+  const getShuffleAnimation = (flying: typeof flyingFrames[0], index: number) => {
+    const directionMultiplier = flying.direction === 'forward' ? -1 : 1
+    const offsetX = (80 + index * 20) * directionMultiplier
+    const rotateZ = ((flying.randomRotateZ || 0) + 8 + index * 3) * directionMultiplier
+    const opacityReduction = 1 - (index * 0.3)
+    
+    return {
+      initial: { x: 0, y: 0, rotateZ: 0, scale: 1, opacity: 1 },
+      animate: {
+        x: offsetX + (flying.randomX || 0),
+        y: -15 + index * 5 + (flying.randomY || 0),
+        rotateZ,
+        scale: 0.95 - index * 0.03,
+        opacity: Math.max(0, opacityReduction),
+        transition: {
+          duration: 0.4,
+          ease: [0.34, 1.56, 0.64, 1],
+          x: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+          rotateZ: { duration: 0.3, ease: 'easeOut' },
+          opacity: { duration: 0.25, delay: 0.1, ease: 'easeIn' }
+        }
+      }
+    }
+  }
+  
+  // Fade animation - simple crossfade between frames
+  const getFadeAnimation = (flying: typeof flyingFrames[0], index: number) => {
+    return {
+      initial: { opacity: 1, scale: 1 },
+      animate: {
+        opacity: 0,
+        scale: 1.02,
+        transition: {
+          duration: 0.25,
+          ease: 'easeOut',
+          opacity: { duration: 0.2, ease: 'easeIn' }
+        }
+      }
+    }
+  }
+  
+  // Get animation based on mode
+  const getAnimation = (flying: typeof flyingFrames[0], index: number) => {
+    switch (animationMode) {
+      case 'waterfall':
+        return getWaterfallAnimation(flying, index)
+      case 'carousel':
+        return getCarouselAnimation(flying, index)
+      case 'shuffle':
+        return getShuffleAnimation(flying, index)
+      case 'fade':
+        return getFadeAnimation(flying, index)
+      default:
+        return getClassicFlyAnimation(flying)
     }
   }
   
@@ -234,12 +283,12 @@ export function Flipbook({
         {/* Flying away frames - different animations based on mode */}
         <AnimatePresence>
           {flyingFrames.map((flying, index) => {
-            const animation = animationMode === 'waterfall'
-              ? getWaterfallAnimation(flying, index, flyingFrames.length)
-              : getClassicFlyAnimation(flying)
+            const animation = getAnimation(flying, index)
             
-            const transformOrigin = animationMode === 'waterfall' 
-              ? 'center center' 
+            const transformOrigin = animationMode === 'carousel' 
+              ? 'center center'
+              : animationMode === 'shuffle'
+              ? 'bottom center'
               : 'top center'
             
             return (
