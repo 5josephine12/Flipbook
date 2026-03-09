@@ -31,6 +31,8 @@ export interface HighlightItem {
 
 export type ViewMode = 'flipbook' | 'scrub' | 'playback'
 
+export type AnimationMode = 'classic' | 'waterfall'
+
 export type FlipDirection = 'forward' | 'backward'
 
 export interface FlipState {

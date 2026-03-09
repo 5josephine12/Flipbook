@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { GifFrame, ViewMode } from '@/lib/gif-types'
+import type { GifFrame, ViewMode, AnimationMode } from '@/lib/gif-types'
 import { cn } from '@/lib/utils'
 import { FlipbookPage } from './flipbook-page'
 
@@ -13,6 +13,7 @@ interface FlipbookProps {
   isFlipping: boolean
   direction: 'forward' | 'backward'
   mode: ViewMode
+  animationMode?: AnimationMode
   onScroll: (deltaY: number) => void
   className?: string
 }
@@ -22,6 +23,7 @@ export function Flipbook({
   currentFrame,
   isFlipping,
   direction,
+  animationMode = 'classic',
   onScroll,
   className
 }: FlipbookProps) {
@@ -29,54 +31,93 @@ export function Flipbook({
   const [flyingFrames, setFlyingFrames] = useState<Array<{
     id: number
     frame: GifFrame
+    frameIndex: number
     direction: 'forward' | 'backward'
+    randomX?: number
+    randomY?: number
+    randomRotateX?: number
+    randomRotateZ?: number
+    randomScale?: number
+    randomDuration?: number
   }>>([])
   const prevFrameRef = useRef(currentFrame)
   
-  // Track flying cards for exit animations - limit to 1 at a time for smoothness
+  // Number of cascading frames to show in waterfall mode
+  const WATERFALL_VISIBLE_COUNT = 5
+  
+  // Track flying cards for exit animations
   useEffect(() => {
     if (prevFrameRef.current !== currentFrame && frames[prevFrameRef.current]) {
       const diff = currentFrame - prevFrameRef.current
       const dir = diff > 0 ? 'forward' : 'backward'
       
-      // Only create ONE flying frame per transition for clean animation
-      const frameIdx = prevFrameRef.current
-      if (frames[frameIdx]) {
-        // Realistic page flip physics - peel then lift
-        const randomX = (Math.random() - 0.5) * 20 // -10 to +10 (minimal sway)
-        const randomY = (Math.random() - 0.5) * 8 // slight vertical variance
-        const randomRotateX = 70 + Math.random() * 15 // 70-85 degrees (steep peel)
-        const randomRotateZ = (Math.random() - 0.5) * 5 // -2.5 to +2.5 degrees
-        const randomScale = 0.85 + Math.random() * 0.1 // 0.85-0.95 (less shrink)
-        const randomDuration = 0.3 + Math.random() * 0.08 // 0.3-0.38s (consistent timing)
-        
-        const newFlying = {
-          id: Date.now() + Math.random(),
-          frame: frames[frameIdx],
-          direction: dir,
-          randomX,
-          randomY,
-          randomRotateX,
-          randomRotateZ,
-          randomScale,
-          randomDuration
+      if (animationMode === 'waterfall') {
+        // Waterfall mode: create cascading card that drops down
+        const frameIdx = prevFrameRef.current
+        if (frames[frameIdx]) {
+          const newFlying = {
+            id: Date.now() + Math.random(),
+            frame: frames[frameIdx],
+            frameIndex: frameIdx,
+            direction: dir,
+            randomX: (Math.random() - 0.5) * 8,
+            randomY: 0,
+            randomRotateX: 0,
+            randomRotateZ: (Math.random() - 0.5) * 4,
+            randomScale: 1,
+            randomDuration: 0.5
+          }
+          
+          // Keep more frames visible for waterfall cascade effect
+          setFlyingFrames(prev => {
+            const limited = prev.length >= WATERFALL_VISIBLE_COUNT ? prev.slice(-(WATERFALL_VISIBLE_COUNT - 1)) : prev
+            return [...limited, newFlying]
+          })
+          
+          // Longer cleanup for waterfall - let cards fully cascade out
+          const flyingId = newFlying.id
+          setTimeout(() => {
+            setFlyingFrames(prev => prev.filter(f => f.id !== flyingId))
+          }, 800)
         }
-        
-        // Limit max flying frames to prevent accumulation
-        setFlyingFrames(prev => {
-          const limited = prev.length >= 2 ? prev.slice(-1) : prev
-          return [...limited, newFlying]
-        })
-        
-        // Clean up after animation completes
-        const flyingId = newFlying.id
-        setTimeout(() => {
-          setFlyingFrames(prev => prev.filter(f => f.id !== flyingId))
-        }, 450)
+      } else {
+        // Classic mode: single flying frame with peel animation
+        const frameIdx = prevFrameRef.current
+        if (frames[frameIdx]) {
+          const randomX = (Math.random() - 0.5) * 20
+          const randomY = (Math.random() - 0.5) * 8
+          const randomRotateX = 70 + Math.random() * 15
+          const randomRotateZ = (Math.random() - 0.5) * 5
+          const randomScale = 0.85 + Math.random() * 0.1
+          const randomDuration = 0.3 + Math.random() * 0.08
+          
+          const newFlying = {
+            id: Date.now() + Math.random(),
+            frame: frames[frameIdx],
+            frameIndex: frameIdx,
+            direction: dir,
+            randomX,
+            randomY,
+            randomRotateX,
+            randomRotateZ,
+            randomScale,
+            randomDuration
+          }
+          
+          setFlyingFrames(prev => {
+            const limited = prev.length >= 2 ? prev.slice(-1) : prev
+            return [...limited, newFlying]
+          })
+          
+          const flyingId = newFlying.id
+          setTimeout(() => {
+            setFlyingFrames(prev => prev.filter(f => f.id !== flyingId))
+          }, 450)
+        }
       }
     }
     prevFrameRef.current = currentFrame
-  }, [currentFrame, frames])
+  }, [currentFrame, frames, animationMode])
   
   // Handle wheel/scroll
   const handleWheel = useCallback((e: WheelEvent) => {
@@ -105,8 +146,8 @@ export function Flipbook({
   
   const aspectRatio = currentFrameData.bitmap.width / currentFrameData.bitmap.height
   
-  // Flying card animation - realistic page flip: rotate first (peel), then lift away
-  const getFlyAwayAnimation = (flying: typeof flyingFrames[0]) => ({
+  // Classic flying card animation - realistic page flip: rotate first (peel), then lift away
+  const getClassicFlyAnimation = (flying: typeof flyingFrames[0]) => ({
     initial: {
       x: 0,
       y: 0,
@@ -116,23 +157,62 @@ export function Flipbook({
       opacity: 1,
     },
     animate: {
-      x: (flying.direction === 'forward' ? -15 : 15) + flying.randomX * 0.5,
-      y: `${-90 + flying.randomY}%`,
-      rotateX: flying.randomRotateX + 15,
-      rotateZ: (flying.direction === 'forward' ? -1 : 1) * Math.abs(flying.randomRotateZ),
-      scale: flying.randomScale,
+      x: (flying.direction === 'forward' ? -15 : 15) + (flying.randomX || 0) * 0.5,
+      y: `${-90 + (flying.randomY || 0)}%`,
+      rotateX: (flying.randomRotateX || 70) + 15,
+      rotateZ: (flying.direction === 'forward' ? -1 : 1) * Math.abs(flying.randomRotateZ || 0),
+      scale: flying.randomScale || 0.9,
       opacity: 0,
       transition: {
-        duration: flying.randomDuration,
-        // Rotation happens immediately (page peeling), then position follows
-        rotateX: { duration: flying.randomDuration * 0.6, ease: [0.22, 1, 0.36, 1] },
-        y: { duration: flying.randomDuration, ease: [0.34, 1.2, 0.64, 1], delay: flying.randomDuration * 0.1 },
-        x: { duration: flying.randomDuration, ease: [0.34, 1.2, 0.64, 1], delay: flying.randomDuration * 0.1 },
-        scale: { duration: flying.randomDuration * 0.8, ease: [0.22, 1, 0.36, 1] },
-        opacity: { duration: flying.randomDuration * 0.6, delay: flying.randomDuration * 0.3, ease: 'easeIn' }
+        duration: flying.randomDuration || 0.3,
+        rotateX: { duration: (flying.randomDuration || 0.3) * 0.6, ease: [0.22, 1, 0.36, 1] },
+        y: { duration: flying.randomDuration || 0.3, ease: [0.34, 1.2, 0.64, 1], delay: (flying.randomDuration || 0.3) * 0.1 },
+        x: { duration: flying.randomDuration || 0.3, ease: [0.34, 1.2, 0.64, 1], delay: (flying.randomDuration || 0.3) * 0.1 },
+        scale: { duration: (flying.randomDuration || 0.3) * 0.8, ease: [0.22, 1, 0.36, 1] },
+        opacity: { duration: (flying.randomDuration || 0.3) * 0.6, delay: (flying.randomDuration || 0.3) * 0.3, ease: 'easeIn' }
       }
     }
   })
+  
+  // Waterfall/Giphoscope animation - cards cascade down like a waterfall
+  const getWaterfallAnimation = (flying: typeof flyingFrames[0], index: number, total: number) => {
+    // Each card in the cascade gets progressively more offset
+    const cascadeOffset = index * 12 // vertical spacing between cards
+    const rotateAmount = (flying.randomRotateZ || 0) + (index * 1.5) // slight rotation accumulation
+    const scaleReduction = 1 - (index * 0.02) // cards get slightly smaller as they fall
+    const opacityReduction = 1 - (index * 0.15) // cards fade as they cascade
+    
+    return {
+      initial: {
+        x: 0,
+        y: 0,
+        rotateZ: 0,
+        rotateX: -15, // slight tilt back like a card being flipped
+        scale: 1,
+        opacity: 1,
+      },
+      animate: {
+        x: (flying.randomX || 0) + (flying.direction === 'forward' ? -3 : 3) * index,
+        y: cascadeOffset + 120, // drop down
+        rotateZ: rotateAmount * (flying.direction === 'forward' ? -1 : 1),
+        rotateX: 5 + index * 2, // tilt forward as falling
+        scale: scaleReduction,
+        opacity: Math.max(0, opacityReduction - 0.1),
+        transition: {
+          duration: 0.6,
+          ease: [0.25, 0.46, 0.45, 0.94], // ease-out-quad for natural fall
+          y: { 
+            duration: 0.55, 
+            ease: [0.34, 1.56, 0.64, 1] // bouncy overshoot
+          },
+          rotateZ: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+          rotateX: { duration: 0.4, ease: 'easeOut' },
+          opacity: { duration: 0.4, delay: 0.2, ease: 'easeIn' },
+          scale: { duration: 0.5, ease: 'easeOut' }
+        }
+      }
+    }
+  }
   
   return (
     <div 
@@ -151,10 +231,17 @@ export function Flipbook({
           maxWidth: '100%',
         }}
       >
-        {/* Flying away frames - flip from TOP edge with randomized physics */}
+        {/* Flying away frames - different animations based on mode */}
         <AnimatePresence>
-          {flyingFrames.map((flying) => {
-            const animation = getFlyAwayAnimation(flying)
+          {flyingFrames.map((flying, index) => {
+            const animation = animationMode === 'waterfall'
+              ? getWaterfallAnimation(flying, index, flyingFrames.length)
+              : getClassicFlyAnimation(flying)
+            
+            const transformOrigin = animationMode === 'waterfall' 
+              ? 'center center' 
+              : 'top center'
+            
             return (
               <motion.div
                 key={flying.id}
@@ -162,10 +249,10 @@ export function Flipbook({
                 animate={animation.animate}
                 className="absolute inset-0 pointer-events-none"
                 style={{ 
-                  zIndex: 30,
+                  zIndex: 30 - index, // stack cards in order for waterfall
                   transformStyle: 'preserve-3d',
                   perspective: '1000px',
-                  transformOrigin: 'top center'
+                  transformOrigin
                 }}
               >
                 <FlipbookPage 
