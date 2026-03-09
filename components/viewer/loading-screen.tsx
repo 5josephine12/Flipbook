@@ -8,8 +8,8 @@ interface LoadingScreenProps {
   className?: string
 }
 
-// Eye loading GIF URL
-const EYE_LOADING_GIF = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/eyeloading.gif-XoNZNRyI06tEsFTIdMqi4eoYZsRHjt.jpeg"
+// Eye loading GIF URL - use local GIF file for animation
+const EYE_LOADING_GIF = "/images/eyeloading.gif"
 
 // Individual rolling digit component with smooth spring animation
 function RollingDigit({ digit, className }: { digit: string; className?: string }) {
