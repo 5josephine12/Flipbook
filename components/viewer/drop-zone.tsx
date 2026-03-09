@@ -239,7 +239,7 @@ export function DropZone({
                   {isDragOver ? 'Drop your GIF' : 'Drop a GIF to flip through it'}
                 </p>
                 <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                  or tap to browse
+                  click on gallery to browse
                 </p>
               </div>
               
