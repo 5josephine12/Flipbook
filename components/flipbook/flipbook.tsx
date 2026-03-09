@@ -174,41 +174,41 @@ export function Flipbook({
     }
   })
   
-  // Waterfall/Giphoscope animation - cards cascade downward like a real giphoscope
+  // Waterfall/Giphoscope animation - cards cascade down like a waterfall
   const getWaterfallAnimation = (flying: typeof flyingFrames[0], index: number, total: number) => {
-    // Each card falls progressively further down, creating a cascading waterfall
-    const cascadeOffsetY = (index + 1) * 18 // vertical spacing - cards stack downward
-    const rotateAmount = (flying.randomRotateZ || 0) * 0.5 // subtle rotation
-    const scaleReduction = 1 - (index * 0.015) // very subtle size reduction
-    const opacityReduction = 1 - (index * 0.2) // cards fade as they fall
+    // Each card in the cascade gets progressively more offset
+    const cascadeOffset = index * 12 // vertical spacing between cards
+    const rotateAmount = (flying.randomRotateZ || 0) + (index * 1.5) // slight rotation accumulation
+    const scaleReduction = 1 - (index * 0.02) // cards get slightly smaller as they fall
+    const opacityReduction = 1 - (index * 0.15) // cards fade as they cascade
     
     return {
       initial: {
         x: 0,
-        y: '-100%', // start from above (falling from top)
-        rotateX: -30, // tilted back like a card about to fall
+        y: 0,
         rotateZ: 0,
+        rotateX: -15, // slight tilt back like a card being flipped
         scale: 1,
         opacity: 1,
       },
       animate: {
-        x: (flying.randomX || 0) * 0.3, // very slight horizontal drift
-        y: `${cascadeOffsetY}%`, // fall downward within container
-        rotateX: 5 + index * 2, // tilt forward as it settles
-        rotateZ: rotateAmount,
+        x: (flying.randomX || 0) + (flying.direction === 'forward' ? -3 : 3) * index,
+        y: cascadeOffset + 120, // drop down
+        rotateZ: rotateAmount * (flying.direction === 'forward' ? -1 : 1),
+        rotateX: 5 + index * 2, // tilt forward as falling
         scale: scaleReduction,
-        opacity: Math.max(0, opacityReduction),
+        opacity: Math.max(0, opacityReduction - 0.1),
         transition: {
-          duration: 0.45,
-          ease: [0.22, 1, 0.36, 1], // smooth ease-out
+          duration: 0.6,
+          ease: [0.25, 0.46, 0.45, 0.94], // ease-out-quad for natural fall
           y: { 
-            duration: 0.4, 
-            ease: [0.34, 1.56, 0.64, 1] // slight bounce on landing
+            duration: 0.55, 
+            ease: [0.34, 1.56, 0.64, 1] // bouncy overshoot
           },
-          rotateX: { duration: 0.35, ease: 'easeOut' },
-          rotateZ: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
-          opacity: { duration: 0.3, delay: 0.15, ease: 'easeIn' },
-          scale: { duration: 0.35, ease: 'easeOut' }
+          rotateZ: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+          rotateX: { duration: 0.4, ease: 'easeOut' },
+          opacity: { duration: 0.4, delay: 0.2, ease: 'easeIn' },
+          scale: { duration: 0.5, ease: 'easeOut' }
         }
       }
     }
@@ -224,7 +224,7 @@ export function Flipbook({
     >
       {/* Card container - size based on available space while preserving aspect ratio */}
       <div 
-        className="relative overflow-hidden"
+        className="relative"
         style={{ 
           aspectRatio,
           height: '100%',
@@ -239,7 +239,7 @@ export function Flipbook({
               : getClassicFlyAnimation(flying)
             
             const transformOrigin = animationMode === 'waterfall' 
-              ? 'top center' // cards fall from top edge
+              ? 'center center' 
               : 'top center'
             
             return (
