@@ -31,7 +31,7 @@ export interface HighlightItem {
 
 export type ViewMode = 'flipbook' | 'scrub' | 'playback'
 
-export type AnimationMode = 'classic' | 'waterfall' | 'spiral' | 'swing' | 'fade'
+export type AnimationMode = 'classic' | 'waterfall' | 'slide'
 
 export type FlipDirection = 'forward' | 'backward'
 

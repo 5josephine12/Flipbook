@@ -50,12 +50,8 @@ export function Flipbook({
     switch (mode) {
       case 'waterfall':
         return { maxFrames: WATERFALL_VISIBLE_COUNT, cleanupTime: 800 }
-      case 'spiral':
-        return { maxFrames: 4, cleanupTime: 700 }
-      case 'swing':
-        return { maxFrames: 2, cleanupTime: 550 }
-      case 'fade':
-        return { maxFrames: 2, cleanupTime: 400 }
+      case 'slide':
+        return { maxFrames: 3, cleanupTime: 500 }
       default:
         return { maxFrames: 2, cleanupTime: 450 }
     }
@@ -75,12 +71,12 @@ export function Flipbook({
           frame: frames[frameIdx],
           frameIndex: frameIdx,
           direction: dir,
-          randomX: (Math.random() - 0.5) * (animationMode === 'spiral' ? 20 : 8),
-          randomY: (Math.random() - 0.5) * 8,
+          randomX: (Math.random() - 0.5) * 8,
+          randomY: (Math.random() - 0.5) * 6,
           randomRotateX: animationMode === 'classic' ? 70 + Math.random() * 15 : 0,
-          randomRotateZ: (Math.random() - 0.5) * (animationMode === 'spiral' ? 10 : 5),
-          randomScale: 0.85 + Math.random() * 0.1,
-          randomDuration: animationMode === 'fade' ? 0.25 : 0.3 + Math.random() * 0.08
+          randomRotateZ: (Math.random() - 0.5) * 4,
+          randomScale: 0.9 + Math.random() * 0.08,
+          randomDuration: 0.3 + Math.random() * 0.06
         }
         
         setFlyingFrames(prev => {
@@ -181,73 +177,29 @@ export function Flipbook({
     }
   }
   
-  // Spiral animation - cards spiral outward in a circular motion
-  const getSpiralAnimation = (flying: typeof flyingFrames[0], index: number) => {
-    const directionMultiplier = flying.direction === 'forward' ? 1 : -1
-    const angle = (index * 45 + 90) * directionMultiplier // degrees
-    const radius = 80 + index * 40 // distance from center
-    const radians = (angle * Math.PI) / 180
-    const targetX = Math.cos(radians) * radius
-    const targetY = Math.sin(radians) * radius - 60 // bias upward
-    const rotateAmount = (180 + index * 60) * directionMultiplier
-    const opacityReduction = 1 - (index * 0.2)
-    
-    return {
-      initial: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1 },
-      animate: {
-        x: targetX + (flying.randomX || 0),
-        y: targetY + (flying.randomY || 0),
-        rotate: rotateAmount,
-        scale: 0.7 - index * 0.08,
-        opacity: Math.max(0, opacityReduction),
-        transition: {
-          duration: 0.55,
-          ease: [0.22, 1, 0.36, 1],
-          x: { duration: 0.5, ease: [0.34, 1.2, 0.64, 1] },
-          y: { duration: 0.5, ease: [0.34, 1.2, 0.64, 1] },
-          rotate: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
-          opacity: { duration: 0.35, delay: 0.15, ease: 'easeIn' }
-        }
-      }
-    }
-  }
-  
-  // Swing animation - cards swing like a hinged door/pendulum before flying off
-  const getSwingAnimation = (flying: typeof flyingFrames[0], index: number) => {
+  // Slide animation - cards slide off to the side like dealing from a deck
+  const getSlideAnimation = (flying: typeof flyingFrames[0], index: number) => {
     const directionMultiplier = flying.direction === 'forward' ? -1 : 1
-    const swingAngle = 75 * directionMultiplier // swing open like a door
-    const exitX = 50 * directionMultiplier
-    const opacityReduction = 1 - (index * 0.4)
+    const slideDistance = 70 + index * 15 // cards slide progressively further
+    const verticalDrift = -8 + index * 4 // slight upward then settle
+    const rotateAmount = (2 + index * 1.5) * directionMultiplier
+    const opacityReduction = 1 - (index * 0.25)
     
     return {
-      initial: { rotateY: 0, x: 0, scale: 1, opacity: 1 },
+      initial: { x: 0, y: 0, rotateZ: 0, scale: 1, opacity: 1 },
       animate: {
-        rotateY: swingAngle,
-        x: exitX + (flying.randomX || 0) * 0.5,
-        scale: 0.92 - index * 0.04,
+        x: slideDistance * directionMultiplier + (flying.randomX || 0),
+        y: verticalDrift + (flying.randomY || 0) * 0.5,
+        rotateZ: rotateAmount,
+        scale: 0.96 - index * 0.02,
         opacity: Math.max(0, opacityReduction),
         transition: {
-          duration: 0.45,
-          ease: [0.34, 1.56, 0.64, 1], // bouncy overshoot for swing feel
-          rotateY: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
-          x: { duration: 0.35, delay: 0.1, ease: 'easeOut' },
-          opacity: { duration: 0.3, delay: 0.15, ease: 'easeIn' }
-        }
-      }
-    }
-  }
-  
-  // Fade animation - simple crossfade between frames
-  const getFadeAnimation = (flying: typeof flyingFrames[0], index: number) => {
-    return {
-      initial: { opacity: 1, scale: 1 },
-      animate: {
-        opacity: 0,
-        scale: 1.02,
-        transition: {
-          duration: 0.25,
-          ease: 'easeOut',
-          opacity: { duration: 0.2, ease: 'easeIn' }
+          duration: 0.38,
+          ease: [0.22, 1, 0.36, 1],
+          x: { duration: 0.35, ease: [0.32, 0.72, 0, 1] },
+          y: { duration: 0.3, ease: 'easeOut' },
+          rotateZ: { duration: 0.28, ease: 'easeOut' },
+          opacity: { duration: 0.25, delay: 0.12, ease: 'easeIn' }
         }
       }
     }
@@ -258,12 +210,8 @@ export function Flipbook({
     switch (animationMode) {
       case 'waterfall':
         return getWaterfallAnimation(flying, index)
-      case 'spiral':
-        return getSpiralAnimation(flying, index)
-      case 'swing':
-        return getSwingAnimation(flying, index)
-      case 'fade':
-        return getFadeAnimation(flying, index)
+      case 'slide':
+        return getSlideAnimation(flying, index)
       default:
         return getClassicFlyAnimation(flying)
     }
@@ -291,10 +239,8 @@ export function Flipbook({
           {flyingFrames.map((flying, index) => {
             const animation = getAnimation(flying, index)
             
-            const transformOrigin = animationMode === 'spiral' 
+            const transformOrigin = animationMode === 'slide' 
               ? 'center center'
-              : animationMode === 'swing'
-              ? (flying.direction === 'forward' ? 'left center' : 'right center')
               : 'top center'
             
             return (
