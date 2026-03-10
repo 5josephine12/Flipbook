@@ -177,29 +177,28 @@ export function Flipbook({
     }
   }
   
-  // Slide animation - cards slide off to the side like dealing from a deck
+  // Slide animation - cards slide behind the stack like dealing from a deck
   const getSlideAnimation = (flying: typeof flyingFrames[0], index: number) => {
     const directionMultiplier = flying.direction === 'forward' ? -1 : 1
-    const slideDistance = 70 + index * 15 // cards slide progressively further
-    const verticalDrift = -8 + index * 4 // slight upward then settle
-    const rotateAmount = (2 + index * 1.5) * directionMultiplier
-    const opacityReduction = 1 - (index * 0.25)
+    const slideDistance = 25 + index * 8 // subtle horizontal offset
+    const depthOffset = 4 + index * 2 // cards move back in depth (down = behind)
+    const scaleReduction = 0.97 - index * 0.015 // slightly smaller as they stack behind
+    const opacityReduction = 1 - (index * 0.3)
     
     return {
-      initial: { x: 0, y: 0, rotateZ: 0, scale: 1, opacity: 1 },
+      initial: { x: 0, y: 0, scale: 1, opacity: 1 },
       animate: {
-        x: slideDistance * directionMultiplier + (flying.randomX || 0),
-        y: verticalDrift + (flying.randomY || 0) * 0.5,
-        rotateZ: rotateAmount,
-        scale: 0.96 - index * 0.02,
+        x: slideDistance * directionMultiplier + (flying.randomX || 0) * 0.3,
+        y: depthOffset, // move down slightly to appear "behind"
+        scale: scaleReduction,
         opacity: Math.max(0, opacityReduction),
         transition: {
-          duration: 0.38,
+          duration: 0.32,
           ease: [0.22, 1, 0.36, 1],
-          x: { duration: 0.35, ease: [0.32, 0.72, 0, 1] },
-          y: { duration: 0.3, ease: 'easeOut' },
-          rotateZ: { duration: 0.28, ease: 'easeOut' },
-          opacity: { duration: 0.25, delay: 0.12, ease: 'easeIn' }
+          x: { duration: 0.28, ease: [0.32, 0.72, 0, 1] },
+          y: { duration: 0.25, ease: 'easeOut' },
+          scale: { duration: 0.25, ease: 'easeOut' },
+          opacity: { duration: 0.22, delay: 0.08, ease: 'easeIn' }
         }
       }
     }
@@ -243,6 +242,12 @@ export function Flipbook({
               ? 'center center'
               : 'top center'
             
+            // For slide mode, cards go behind (lower z-index than current frame)
+            // For other modes, cards fly in front
+            const zIndex = animationMode === 'slide' 
+              ? 4 - index // behind current frame (z-index 5), older = further back
+              : 30 - index // in front of current frame
+            
             return (
               <motion.div
                 key={flying.id}
@@ -250,7 +255,7 @@ export function Flipbook({
                 animate={animation.animate}
                 className="absolute inset-0 pointer-events-none"
                 style={{ 
-                  zIndex: 30 - index, // stack cards in order for waterfall
+                  zIndex,
                   transformStyle: 'preserve-3d',
                   perspective: '1000px',
                   transformOrigin
