@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Play, Pause, SkipBack, SkipForward, ChevronFirst, ChevronLast, Upload, Maximize2, Minimize2, X, Layers, Wind, RotateCcw, Shuffle, Sparkles } from 'lucide-react'
+import { Play, Pause, SkipBack, SkipForward, ChevronFirst, ChevronLast, Upload, Maximize2, Minimize2, X, Layers, Wind, Orbit, DoorOpen, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { useGifDecoder } from '@/hooks/use-gif-decoder'
@@ -428,15 +428,15 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                         size="icon"
                         hapticType="medium"
                         onClick={() => setAnimationMode(prev => {
-                          const modes: AnimationMode[] = ['classic', 'waterfall', 'carousel', 'shuffle', 'fade']
+                          const modes: AnimationMode[] = ['classic', 'waterfall', 'spiral', 'swing', 'fade']
                           const currentIndex = modes.indexOf(prev)
                           return modes[(currentIndex + 1) % modes.length]
                         })}
                         className={cn(animationMode !== 'classic' && "bg-primary/10")}
                       >
                         {animationMode === 'waterfall' && <Wind className="w-4 h-4" />}
-                        {animationMode === 'carousel' && <RotateCcw className="w-4 h-4" />}
-                        {animationMode === 'shuffle' && <Shuffle className="w-4 h-4" />}
+                        {animationMode === 'spiral' && <Orbit className="w-4 h-4" />}
+                        {animationMode === 'swing' && <DoorOpen className="w-4 h-4" />}
                         {animationMode === 'fade' && <Sparkles className="w-4 h-4" />}
                         {animationMode === 'classic' && <Layers className="w-4 h-4" />}
                       </HardwareButton3D>
@@ -444,8 +444,8 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                     <TooltipContent>
                       {animationMode === 'classic' && 'Classic flip'}
                       {animationMode === 'waterfall' && 'Waterfall (Giphoscope)'}
-                      {animationMode === 'carousel' && 'Carousel'}
-                      {animationMode === 'shuffle' && 'Shuffle'}
+                      {animationMode === 'spiral' && 'Spiral'}
+                      {animationMode === 'swing' && 'Swing'}
                       {animationMode === 'fade' && 'Fade'}
                     </TooltipContent>
                   </Tooltip>

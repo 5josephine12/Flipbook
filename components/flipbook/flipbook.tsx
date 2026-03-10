@@ -50,10 +50,10 @@ export function Flipbook({
     switch (mode) {
       case 'waterfall':
         return { maxFrames: WATERFALL_VISIBLE_COUNT, cleanupTime: 800 }
-      case 'carousel':
-        return { maxFrames: 4, cleanupTime: 600 }
-      case 'shuffle':
-        return { maxFrames: 3, cleanupTime: 500 }
+      case 'spiral':
+        return { maxFrames: 4, cleanupTime: 700 }
+      case 'swing':
+        return { maxFrames: 2, cleanupTime: 550 }
       case 'fade':
         return { maxFrames: 2, cleanupTime: 400 }
       default:
@@ -75,10 +75,10 @@ export function Flipbook({
           frame: frames[frameIdx],
           frameIndex: frameIdx,
           direction: dir,
-          randomX: (Math.random() - 0.5) * (animationMode === 'shuffle' ? 30 : 8),
+          randomX: (Math.random() - 0.5) * (animationMode === 'spiral' ? 20 : 8),
           randomY: (Math.random() - 0.5) * 8,
           randomRotateX: animationMode === 'classic' ? 70 + Math.random() * 15 : 0,
-          randomRotateZ: (Math.random() - 0.5) * (animationMode === 'shuffle' ? 15 : 5),
+          randomRotateZ: (Math.random() - 0.5) * (animationMode === 'spiral' ? 10 : 5),
           randomScale: 0.85 + Math.random() * 0.1,
           randomDuration: animationMode === 'fade' ? 0.25 : 0.3 + Math.random() * 0.08
         }
@@ -181,51 +181,57 @@ export function Flipbook({
     }
   }
   
-  // Carousel animation - cards rotate around like a 3D carousel
-  const getCarouselAnimation = (flying: typeof flyingFrames[0], index: number) => {
-    const rotateY = (flying.direction === 'forward' ? -90 : 90) + index * 15
-    const translateZ = -100 - index * 30
-    const opacityReduction = 1 - (index * 0.25)
+  // Spiral animation - cards spiral outward in a circular motion
+  const getSpiralAnimation = (flying: typeof flyingFrames[0], index: number) => {
+    const directionMultiplier = flying.direction === 'forward' ? 1 : -1
+    const angle = (index * 45 + 90) * directionMultiplier // degrees
+    const radius = 80 + index * 40 // distance from center
+    const radians = (angle * Math.PI) / 180
+    const targetX = Math.cos(radians) * radius
+    const targetY = Math.sin(radians) * radius - 60 // bias upward
+    const rotateAmount = (180 + index * 60) * directionMultiplier
+    const opacityReduction = 1 - (index * 0.2)
     
     return {
-      initial: { rotateY: 0, z: 0, scale: 1, opacity: 1 },
+      initial: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1 },
       animate: {
-        rotateY,
-        z: translateZ,
-        scale: 0.8 - index * 0.05,
+        x: targetX + (flying.randomX || 0),
+        y: targetY + (flying.randomY || 0),
+        rotate: rotateAmount,
+        scale: 0.7 - index * 0.08,
         opacity: Math.max(0, opacityReduction),
         transition: {
-          duration: 0.5,
-          ease: [0.32, 0.72, 0, 1],
-          rotateY: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
-          z: { duration: 0.4, ease: 'easeOut' },
-          opacity: { duration: 0.35, delay: 0.1, ease: 'easeIn' }
+          duration: 0.55,
+          ease: [0.22, 1, 0.36, 1],
+          x: { duration: 0.5, ease: [0.34, 1.2, 0.64, 1] },
+          y: { duration: 0.5, ease: [0.34, 1.2, 0.64, 1] },
+          rotate: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+          opacity: { duration: 0.35, delay: 0.15, ease: 'easeIn' }
         }
       }
     }
   }
   
-  // Shuffle animation - cards shuffle to the side like a deck of cards
-  const getShuffleAnimation = (flying: typeof flyingFrames[0], index: number) => {
+  // Swing animation - cards swing like a hinged door/pendulum before flying off
+  const getSwingAnimation = (flying: typeof flyingFrames[0], index: number) => {
     const directionMultiplier = flying.direction === 'forward' ? -1 : 1
-    const offsetX = (80 + index * 20) * directionMultiplier
-    const rotateZ = ((flying.randomRotateZ || 0) + 8 + index * 3) * directionMultiplier
-    const opacityReduction = 1 - (index * 0.3)
+    const swingAngle = 75 * directionMultiplier // swing open like a door
+    const exitX = 50 * directionMultiplier
+    const opacityReduction = 1 - (index * 0.4)
     
     return {
-      initial: { x: 0, y: 0, rotateZ: 0, scale: 1, opacity: 1 },
+      initial: { rotateY: 0, x: 0, scale: 1, opacity: 1 },
       animate: {
-        x: offsetX + (flying.randomX || 0),
-        y: -15 + index * 5 + (flying.randomY || 0),
-        rotateZ,
-        scale: 0.95 - index * 0.03,
+        rotateY: swingAngle,
+        x: exitX + (flying.randomX || 0) * 0.5,
+        scale: 0.92 - index * 0.04,
         opacity: Math.max(0, opacityReduction),
         transition: {
-          duration: 0.4,
-          ease: [0.34, 1.56, 0.64, 1],
-          x: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
-          rotateZ: { duration: 0.3, ease: 'easeOut' },
-          opacity: { duration: 0.25, delay: 0.1, ease: 'easeIn' }
+          duration: 0.45,
+          ease: [0.34, 1.56, 0.64, 1], // bouncy overshoot for swing feel
+          rotateY: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+          x: { duration: 0.35, delay: 0.1, ease: 'easeOut' },
+          opacity: { duration: 0.3, delay: 0.15, ease: 'easeIn' }
         }
       }
     }
@@ -252,10 +258,10 @@ export function Flipbook({
     switch (animationMode) {
       case 'waterfall':
         return getWaterfallAnimation(flying, index)
-      case 'carousel':
-        return getCarouselAnimation(flying, index)
-      case 'shuffle':
-        return getShuffleAnimation(flying, index)
+      case 'spiral':
+        return getSpiralAnimation(flying, index)
+      case 'swing':
+        return getSwingAnimation(flying, index)
       case 'fade':
         return getFadeAnimation(flying, index)
       default:
@@ -285,10 +291,10 @@ export function Flipbook({
           {flyingFrames.map((flying, index) => {
             const animation = getAnimation(flying, index)
             
-            const transformOrigin = animationMode === 'carousel' 
+            const transformOrigin = animationMode === 'spiral' 
               ? 'center center'
-              : animationMode === 'shuffle'
-              ? 'bottom center'
+              : animationMode === 'swing'
+              ? (flying.direction === 'forward' ? 'left center' : 'right center')
               : 'top center'
             
             return (
