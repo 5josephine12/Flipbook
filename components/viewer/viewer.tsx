@@ -12,6 +12,7 @@ import { DropZone } from './drop-zone'
 import { Filmstrip } from './filmstrip'
 import { saveHighlight } from '@/lib/highlights-store'
 import { haptic, hapticThrottled } from '@/lib/haptics'
+import { playSoundIfEnabled } from '@/lib/sounds'
 import { HardwareButton3D } from '@/components/hardware-shell'
 import { KeyboardHint, ScrollHint, EscHint, Divider } from '@/components/ui/keyboard-hint'
 import {
@@ -433,7 +434,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button
-                          onClick={() => { haptic('selection'); setAnimationMode('classic') }}
+                          onClick={() => { haptic('selection'); playSoundIfEnabled('slide'); setAnimationMode('classic') }}
                           className={cn(
                             "relative flex items-center justify-center w-7 h-7 sm:w-10 sm:h-10 flex-shrink-0 aspect-square rounded-[0.5em]",
                             "transition-colors duration-200",
@@ -473,7 +474,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button
-                          onClick={() => { haptic('selection'); setAnimationMode('waterfall') }}
+                          onClick={() => { haptic('selection'); playSoundIfEnabled('slide'); setAnimationMode('waterfall') }}
                           className={cn(
                             "relative flex items-center justify-center w-7 h-7 sm:w-10 sm:h-10 flex-shrink-0 aspect-square rounded-[0.5em]",
                             "transition-colors duration-200",
@@ -513,7 +514,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button
-                          onClick={() => { haptic('selection'); setAnimationMode('slide') }}
+                          onClick={() => { haptic('selection'); playSoundIfEnabled('slide'); setAnimationMode('slide') }}
                           className={cn(
                             "relative flex items-center justify-center w-7 h-7 sm:w-10 sm:h-10 flex-shrink-0 aspect-square rounded-[0.5em]",
                             "transition-colors duration-200",

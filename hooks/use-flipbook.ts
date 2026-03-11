@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react'
 import type { GifFrame, ViewMode, FlipDirection } from '@/lib/gif-types'
+import { playSoundIfEnabled } from '@/lib/sounds'
 
 interface FlipbookState {
   currentFrame: number
@@ -148,6 +149,9 @@ export function useFlipbook({ frames, mode, onFrameChange }: UseFlipbookOptions)
         ...prev,
         velocity: rawVelocity
       }))
+      
+      // Play page flip sound
+      playSoundIfEnabled('pageFlip')
       
       // Always animate smoothly (no animation skip)
       goToFrame(targetFrame, false)

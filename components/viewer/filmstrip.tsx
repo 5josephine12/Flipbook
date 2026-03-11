@@ -5,6 +5,7 @@ import { motion, useSpring, useMotionValue, useAnimationFrame, useTransform } fr
 import { cn } from '@/lib/utils'
 import { transformGaussian } from '@/lib/motion-utils'
 import { haptic } from '@/lib/haptics'
+import { playSoundIfEnabled } from '@/lib/sounds'
 import type { GifFrame } from '@/lib/gif-types'
 
 // Filmstrip constants - responsive sizes
@@ -290,7 +291,7 @@ function FilmstripFrame({
   
   return (
     <motion.button
-      onClick={() => { haptic('selection'); onClick() }}
+      onClick={() => { haptic('selection'); playSoundIfEnabled('filmstrip'); onClick() }}
       className={cn(
         "relative flex-shrink-0 overflow-hidden rounded-sm",
         "border transition-all duration-200",

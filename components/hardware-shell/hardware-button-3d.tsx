@@ -3,13 +3,13 @@
 import { forwardRef, useState, useCallback, useRef } from 'react'
 import { cn } from '@/lib/utils'
 import { haptic } from '@/lib/haptics'
-import { playSoundIfEnabled } from '@/lib/sounds'
+import { playSoundIfEnabled, type SoundType } from '@/lib/sounds'
 
 interface HardwareButton3DProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'default' | 'ghost' | 'primary' | 'destructive'
   size?: 'sm' | 'md' | 'lg' | 'icon'
   hapticType?: 'light' | 'medium' | 'heavy' | 'selection'
-  soundType?: 'click' | 'toggle' | 'success' | 'soft' | 'none'
+  soundType?: SoundType | 'none'
 }
 
 export const HardwareButton3D = forwardRef<HTMLButtonElement, HardwareButton3DProps>(

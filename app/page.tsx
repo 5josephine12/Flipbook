@@ -12,6 +12,7 @@ import { Gallery } from '@/components/gallery'
 import { HardwareButton3D } from '@/components/hardware-shell'
 import { getHighlight } from '@/lib/highlights-store'
 import { haptic } from '@/lib/haptics'
+import { playSoundIfEnabled } from '@/lib/sounds'
 import type { GifData } from '@/lib/gif-types'
 import {
   Tooltip,
@@ -165,7 +166,7 @@ export default function Home() {
               )}
             >
               <button
-                onClick={() => { haptic('selection'); setActiveTab('viewer') }}
+                onClick={() => { haptic('selection'); playSoundIfEnabled('slide'); setActiveTab('viewer') }}
                 className={cn(
                   "relative flex items-center gap-[0.375em] sm:gap-[0.5em] px-[0.75em] sm:px-[1em] py-[0.5em] rounded-[0.25em] sm:rounded-[0.375em] text-[1em] font-medium",
                   "transition-colors duration-200",
@@ -202,7 +203,7 @@ export default function Home() {
               </button>
               
               <button
-                onClick={() => { haptic('selection'); setActiveTab('gallery') }}
+                onClick={() => { haptic('selection'); playSoundIfEnabled('slide'); setActiveTab('gallery') }}
                 className={cn(
                   "relative flex items-center gap-[0.375em] sm:gap-[0.5em] px-[0.75em] sm:px-[1em] py-[0.5em] rounded-[0.25em] sm:rounded-[0.375em] text-[1em] font-medium",
                   "transition-colors duration-200",
