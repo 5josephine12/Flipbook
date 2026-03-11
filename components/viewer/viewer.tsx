@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Play, Pause, SkipBack, SkipForward, ChevronFirst, ChevronLast, Upload, Maximize2, Minimize2, X } from 'lucide-react'
+import { Play, Pause, SkipBack, SkipForward, ChevronFirst, ChevronLast, Upload, Maximize2, Minimize2, X, Layers, Wind, CreditCard } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { useGifDecoder } from '@/hooks/use-gif-decoder'
@@ -20,7 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import type { GifData } from '@/lib/gif-types'
+import type { GifData, AnimationMode } from '@/lib/gif-types'
 
 interface ViewerState {
   hasContent: boolean
@@ -58,6 +58,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
   const [isDraggingScrubber, setIsDraggingScrubber] = useState(false)
   const [showLoadingScreen, setShowLoadingScreen] = useState(false)
   const loadingStartTimeRef = useRef<number | null>(null)
+  const [animationMode, setAnimationMode] = useState<AnimationMode>('classic')
   
   const decoder = useGifDecoder()
   
@@ -313,6 +314,8 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                   isFlipping={flipbook.isFlipping}
                   direction={flipbook.direction}
                   mode="flipbook"
+                  animationMode={animationMode}
+                  scrollVelocity={flipbook.scrollVelocity}
                   onScroll={flipbook.handleScroll}
                   className="w-full h-full"
                 />
@@ -418,6 +421,33 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                 
                 {/* Playback controls */}
                 <div className="flex items-center justify-center gap-1.5">
+                  {/* Animation mode toggle */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HardwareButton3D 
+                        variant="ghost" 
+                        size="icon"
+                        hapticType="medium"
+                        onClick={() => setAnimationMode(prev => {
+                          const modes: AnimationMode[] = ['classic', 'waterfall', 'slide']
+                          const currentIndex = modes.indexOf(prev)
+                          return modes[(currentIndex + 1) % modes.length]
+                        })}
+                        className={cn(animationMode !== 'classic' && "bg-primary/10")}
+                      >
+                        {animationMode === 'classic' && <Layers className="w-4 h-4" />}
+                        {animationMode === 'waterfall' && <Wind className="w-4 h-4" />}
+                        {animationMode === 'slide' && <CreditCard className="w-4 h-4" />}
+                      </HardwareButton3D>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {animationMode === 'classic' && 'Classic flip'}
+                      {animationMode === 'waterfall' && 'Waterfall'}
+                      {animationMode === 'slide' && 'Slide'}
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  <div className="w-px h-6 bg-border mx-1" />
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <HardwareButton3D 
@@ -531,6 +561,8 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                 isFlipping={flipbook.isFlipping}
                 direction={flipbook.direction}
                 mode="flipbook"
+                animationMode={animationMode}
+                scrollVelocity={flipbook.scrollVelocity}
                 onScroll={flipbook.handleScroll}
                 className="w-full h-full max-w-[80vw] max-h-[70vh]"
               />

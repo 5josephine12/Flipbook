@@ -33,6 +33,7 @@ export function useFlipbook({ frames, mode, onFrameChange }: UseFlipbookOptions)
   const playbackIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
+  const [scrollVelocity, setScrollVelocity] = useState(1) // normalized 0.2 to 2.0
   
   // Clamp frame to valid range
   const clampFrame = useCallback((frame: number) => {
@@ -128,12 +129,24 @@ export function useFlipbook({ frames, mode, onFrameChange }: UseFlipbookOptions)
       
       const targetFrame = clampFrame(state.currentFrame + direction * framesToFlip)
       
-      // Calculate velocity based on scroll speed
-      const velocity = Math.min(Math.abs(deltaY) / (timeDelta || 16), 10)
+      // Calculate velocity based on scroll speed (pixels per ms)
+      const rawVelocity = Math.abs(deltaY) / Math.max(timeDelta, 8)
+      
+      // Only slow down animation when scrolling is VERY slow (deliberate, frame-by-frame)
+      // Normal/fast scrolling keeps velocity at 1.0 for snappy animations
+      // Very slow scroll (< 2 px/ms) = 0.4x to 0.8x speed (slower animation)
+      // Normal scroll (>= 2 px/ms) = 1.0x speed (normal fast animation)
+      let normalizedVelocity = 1.0
+      if (rawVelocity < 2) {
+        // Map 0-2 px/ms to 0.4-1.0 velocity
+        normalizedVelocity = 0.4 + (rawVelocity / 2) * 0.6
+      }
+      
+      setScrollVelocity(normalizedVelocity)
       
       setState(prev => ({
         ...prev,
-        velocity
+        velocity: rawVelocity
       }))
       
       // Always animate smoothly (no animation skip)
@@ -193,6 +206,8 @@ export function useFlipbook({ frames, mode, onFrameChange }: UseFlipbookOptions)
     
     playbackIntervalRef.current = setTimeout(() => {
       const nextFrame = (state.currentFrame + 1) % frameCount
+      // During playback, always use normal velocity (1.0) for fast animations
+      setScrollVelocity(1.0)
       setState(prev => ({
         ...prev,
         currentFrame: nextFrame
@@ -227,6 +242,7 @@ export function useFlipbook({ frames, mode, onFrameChange }: UseFlipbookOptions)
     frameCount,
     isPlaying,
     playbackSpeed,
+    scrollVelocity,
     goToFrame,
     handleScroll,
     setIsPlaying,
