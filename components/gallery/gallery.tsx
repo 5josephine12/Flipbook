@@ -80,7 +80,7 @@ function GifCard({
         ease: [0.32, 0.72, 0, 1]
       }}
       className="group relative break-inside-avoid"
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => { setIsHovered(true); playSoundIfEnabled('hover') }}
       onMouseLeave={() => setIsHovered(false)}
     >
       <motion.div 
@@ -184,7 +184,7 @@ function DefaultGifCard({
         ease: [0.32, 0.72, 0, 1]
       }}
       className="group relative break-inside-avoid"
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => { setIsHovered(true); playSoundIfEnabled('hover') }}
       onMouseLeave={() => setIsHovered(false)}
     >
       <motion.div 
