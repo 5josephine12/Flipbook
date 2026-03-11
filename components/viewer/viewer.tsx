@@ -420,78 +420,114 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                 </div>
                 
                 {/* Playback controls */}
-                <div className="flex items-center justify-center gap-1 sm:gap-1.5">
-                  {/* Animation mode buttons */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HardwareButton3D 
-                        variant="default"
-                        size="icon"
-                        className="h-8 w-8 sm:h-11 sm:w-11 relative"
-                        hapticType="medium"
-                        onClick={() => setAnimationMode('classic')}
-                      >
-                        <span
+                <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+                  {/* Animation mode slider */}
+                  <div 
+                    className={cn(
+                      "flex items-center gap-0.5 p-1 rounded-lg sm:rounded-xl",
+                      "bg-[var(--recess)]",
+                      "shadow-[inset_0_2px_4px_-1px_rgba(0,0,0,0.1),inset_0_1px_2px_-1px_rgba(0,0,0,0.06)]",
+                      "dark:shadow-[inset_0_2px_4px_-1px_rgba(0,0,0,0.3),inset_0_1px_2px_-1px_rgba(0,0,0,0.2)]"
+                    )}
+                  >
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => { haptic('selection'); setAnimationMode('classic') }}
                           className={cn(
-                            "absolute top-1 right-1 sm:top-1.5 sm:right-1.5 w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300",
+                            "relative flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-md sm:rounded-lg",
+                            "transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
                             animationMode === 'classic'
-                              ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
-                              : "bg-[var(--led-inactive)]"
+                              ? cn(
+                                  "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
+                                  "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
+                                  "dark:from-[var(--module)] dark:to-[var(--card)]",
+                                  "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]",
+                                  "text-[var(--foreground)]"
+                                )
+                              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                           )}
-                        />
-                        <Layers className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </HardwareButton3D>
-                    </TooltipTrigger>
-                    <TooltipContent>Classic flip</TooltipContent>
-                  </Tooltip>
-                  
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HardwareButton3D 
-                        variant="default"
-                        size="icon"
-                        className="h-8 w-8 sm:h-11 sm:w-11 relative"
-                        hapticType="medium"
-                        onClick={() => setAnimationMode('waterfall')}
-                      >
-                        <span
+                        >
+                          <span
+                            className={cn(
+                              "absolute top-1 right-1 w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300",
+                              animationMode === 'classic'
+                                ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
+                                : "bg-[var(--led-inactive)]"
+                            )}
+                          />
+                          <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Classic flip</TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => { haptic('selection'); setAnimationMode('waterfall') }}
                           className={cn(
-                            "absolute top-1 right-1 sm:top-1.5 sm:right-1.5 w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300",
+                            "relative flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-md sm:rounded-lg",
+                            "transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
                             animationMode === 'waterfall'
-                              ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
-                              : "bg-[var(--led-inactive)]"
+                              ? cn(
+                                  "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
+                                  "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
+                                  "dark:from-[var(--module)] dark:to-[var(--card)]",
+                                  "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]",
+                                  "text-[var(--foreground)]"
+                                )
+                              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                           )}
-                        />
-                        <Wind className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </HardwareButton3D>
-                    </TooltipTrigger>
-                    <TooltipContent>Waterfall</TooltipContent>
-                  </Tooltip>
-                  
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HardwareButton3D 
-                        variant="default"
-                        size="icon"
-                        className="h-8 w-8 sm:h-11 sm:w-11 relative"
-                        hapticType="medium"
-                        onClick={() => setAnimationMode('slide')}
-                      >
-                        <span
+                        >
+                          <span
+                            className={cn(
+                              "absolute top-1 right-1 w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300",
+                              animationMode === 'waterfall'
+                                ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
+                                : "bg-[var(--led-inactive)]"
+                            )}
+                          />
+                          <Wind className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Waterfall</TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => { haptic('selection'); setAnimationMode('slide') }}
                           className={cn(
-                            "absolute top-1 right-1 sm:top-1.5 sm:right-1.5 w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300",
+                            "relative flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-md sm:rounded-lg",
+                            "transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
                             animationMode === 'slide'
-                              ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
-                              : "bg-[var(--led-inactive)]"
+                              ? cn(
+                                  "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
+                                  "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
+                                  "dark:from-[var(--module)] dark:to-[var(--card)]",
+                                  "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]",
+                                  "text-[var(--foreground)]"
+                                )
+                              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                           )}
-                        />
-                        <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </HardwareButton3D>
-                    </TooltipTrigger>
-                    <TooltipContent>Slide</TooltipContent>
-                  </Tooltip>
+                        >
+                          <span
+                            className={cn(
+                              "absolute top-1 right-1 w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300",
+                              animationMode === 'slide'
+                                ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
+                                : "bg-[var(--led-inactive)]"
+                            )}
+                          />
+                          <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Slide</TooltipContent>
+                    </Tooltip>
+                  </div>
                   
-                  <div className="w-px h-5 sm:h-6 bg-border mx-2 sm:mx-3" />
+                  <div className="w-px h-5 sm:h-6 bg-border mx-1 sm:mx-2" />
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <HardwareButton3D 
