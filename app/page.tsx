@@ -72,9 +72,9 @@ export default function Home() {
         )}
       >
         <div className="absolute inset-0 overflow-hidden">
-          {/* Loading screen overlay - shown during GIF decoding */}
+          {/* Loading screen overlay - shown during GIF decoding, only on viewer tab */}
           <AnimatePresence>
-            {viewerState.isLoading && (
+            {activeTab === 'viewer' && viewerState.isLoading && (
               <motion.div
                 key="loading"
                 initial={{ opacity: 0, scale: 1.02 }}
