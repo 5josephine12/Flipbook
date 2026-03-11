@@ -170,26 +170,31 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
       playSoundIfEnabled('toggle')
       toast.custom((t) => (
         <div className={cn(
-          "w-full max-w-sm p-4 rounded-2xl",
+          "w-full max-w-sm mx-4 p-6 rounded-2xl",
           "bg-gradient-to-b from-[var(--shell)] to-[var(--recess)]",
           "border border-[var(--border)]",
           "shadow-[0_1px_0_0_rgba(255,255,255,0.4)_inset,0_-1px_2px_0_rgba(0,0,0,0.05)_inset,0_8px_32px_-8px_rgba(0,0,0,0.25),0_4px_12px_-4px_rgba(0,0,0,0.15)]",
           "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.05)_inset,0_-1px_2px_0_rgba(0,0,0,0.2)_inset,0_8px_32px_-8px_rgba(0,0,0,0.5),0_4px_12px_-4px_rgba(0,0,0,0.4)]"
         )}>
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className={cn(
-                "w-2 h-2 rounded-full flex-shrink-0",
-                "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
-              )} />
-              <span className="text-sm font-medium text-[var(--foreground)]">Saved to Gallery</span>
-            </div>
+          <p className="text-sm text-[var(--muted-foreground)] mb-6">
+            GIF saved to your gallery.
+          </p>
+          <div className="flex justify-end">
             <div className={cn(
-              "inline-flex items-center p-1 rounded-lg",
+              "inline-flex items-center gap-1 p-1.5 rounded-xl",
               "bg-[var(--recess)]",
               "shadow-[inset_0_2px_4px_-1px_rgba(0,0,0,0.1),inset_0_1px_2px_-1px_rgba(0,0,0,0.06)]",
               "dark:shadow-[inset_0_2px_4px_-1px_rgba(0,0,0,0.3),inset_0_1px_2px_-1px_rgba(0,0,0,0.2)]",
             )}>
+              <button
+                onClick={() => toast.dismiss(t)}
+                className={cn(
+                  "relative flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                  "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                )}
+              >
+                Dismiss
+              </button>
               <button
                 onClick={async () => {
                   toast.dismiss(t)
@@ -200,19 +205,15 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                     playSoundIfEnabled('toggle')
                     toast.custom(() => (
                       <div className={cn(
-                        "w-full max-w-sm p-4 rounded-2xl",
+                        "w-full max-w-sm mx-4 p-6 rounded-2xl",
                         "bg-gradient-to-b from-[var(--shell)] to-[var(--recess)]",
                         "border border-[var(--border)]",
                         "shadow-[0_1px_0_0_rgba(255,255,255,0.4)_inset,0_-1px_2px_0_rgba(0,0,0,0.05)_inset,0_8px_32px_-8px_rgba(0,0,0,0.25),0_4px_12px_-4px_rgba(0,0,0,0.15)]",
                         "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.05)_inset,0_-1px_2px_0_rgba(0,0,0,0.2)_inset,0_8px_32px_-8px_rgba(0,0,0,0.5),0_4px_12px_-4px_rgba(0,0,0,0.4)]"
                       )}>
-                        <div className="flex items-center gap-3">
-                          <span className={cn(
-                            "w-2 h-2 rounded-full flex-shrink-0",
-                            "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
-                          )} />
-                          <span className="text-sm font-medium text-[var(--foreground)]">Removed from Gallery</span>
-                        </div>
+                        <p className="text-sm text-[var(--muted-foreground)]">
+                          Removed from gallery.
+                        </p>
                       </div>
                     ), { duration: 2000 })
                     onGallerySaved?.()
@@ -222,12 +223,12 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                   }
                 }}
                 className={cn(
-                  "relative flex items-center justify-center px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200",
+                  "relative flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                   "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
                   "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
                   "dark:from-[var(--module)] dark:to-[var(--card)]",
                   "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]",
-                  "text-[var(--foreground)] hover:brightness-105"
+                  "text-[var(--foreground)]"
                 )}
               >
                 Undo
