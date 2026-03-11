@@ -42,7 +42,15 @@ function GifCard({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [currentFrame, setCurrentFrame] = useState(0)
   const [isHovered, setIsHovered] = useState(false)
-  const [isAnimationComplete, setIsAnimationComplete] = useState(false)
+  const isAnimationCompleteRef = useRef(false)
+  
+  // Set animation complete after entrance animation delay + duration
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      isAnimationCompleteRef.current = true
+    }, (index * 40) + 500) // delay + duration in ms
+    return () => clearTimeout(timeout)
+  }, [index])
   
   // Auto-play animation
   useEffect(() => {
@@ -80,9 +88,8 @@ function GifCard({
         duration: 0.5, 
         ease: [0.32, 0.72, 0, 1]
       }}
-      onAnimationComplete={() => setIsAnimationComplete(true)}
       className="group relative break-inside-avoid"
-      onMouseEnter={() => { setIsHovered(true); if (isAnimationComplete) playSoundIfEnabled('hover') }}
+      onMouseEnter={() => { setIsHovered(true); if (isAnimationCompleteRef.current) playSoundIfEnabled('hover') }}
       onMouseLeave={() => setIsHovered(false)}
     >
       <motion.div 
@@ -90,7 +97,7 @@ function GifCard({
         whileHover={{ scale: 1.025 }}
         whileTap={{ scale: 0.98 }}
         transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
-        onClick={() => { playSoundIfEnabled('click'); if (isAnimationComplete) onSelect() }}
+        onClick={() => { playSoundIfEnabled('click'); if (isAnimationCompleteRef.current) onSelect() }}
         style={{
           boxShadow: isHovered 
             ? '0 20px 40px -12px rgba(0,0,0,0.2)' 
@@ -173,7 +180,15 @@ function DefaultGifCard({
   index: number
 }) {
   const [isHovered, setIsHovered] = useState(false)
-  const [isAnimationComplete, setIsAnimationComplete] = useState(false)
+  const isAnimationCompleteRef = useRef(false)
+  
+  // Set animation complete after entrance animation delay + duration
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      isAnimationCompleteRef.current = true
+    }, (index * 40) + 500) // delay + duration in ms
+    return () => clearTimeout(timeout)
+  }, [index])
   
   return (
     <motion.div
@@ -186,9 +201,8 @@ function DefaultGifCard({
         duration: 0.5, 
         ease: [0.32, 0.72, 0, 1]
       }}
-      onAnimationComplete={() => setIsAnimationComplete(true)}
       className="group relative break-inside-avoid"
-      onMouseEnter={() => { setIsHovered(true); if (isAnimationComplete) playSoundIfEnabled('hover') }}
+      onMouseEnter={() => { setIsHovered(true); if (isAnimationCompleteRef.current) playSoundIfEnabled('hover') }}
       onMouseLeave={() => setIsHovered(false)}
     >
       <motion.div 
@@ -196,7 +210,7 @@ function DefaultGifCard({
         whileHover={{ scale: 1.025 }}
         whileTap={{ scale: 0.98 }}
         transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
-        onClick={() => { playSoundIfEnabled('click'); if (isAnimationComplete) onSelect() }}
+        onClick={() => { playSoundIfEnabled('click'); if (isAnimationCompleteRef.current) onSelect() }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

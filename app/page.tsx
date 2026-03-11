@@ -24,7 +24,7 @@ import {
 type Tab = 'viewer' | 'gallery'
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<Tab>('viewer')
+  const [activeTab, setActiveTab] = useState<Tab>('gallery')
   const [galleryRefresh, setGalleryRefresh] = useState(0)
   const [initialData, setInitialData] = useState<GifData | null>(null)
   const [showAbout, setShowAbout] = useState(false)
@@ -59,6 +59,8 @@ export default function Home() {
       setActiveTab('viewer')
     }
   }, [])
+  
+  
   
 
   
@@ -166,43 +168,6 @@ export default function Home() {
               )}
             >
               <button
-                onClick={() => { haptic('selection'); playSoundIfEnabled('slide'); setActiveTab('viewer') }}
-                className={cn(
-                  "relative flex items-center gap-[0.375em] sm:gap-[0.5em] px-[0.75em] sm:px-[1em] py-[0.5em] rounded-[0.25em] sm:rounded-[0.375em] text-[1em] font-medium",
-                  "transition-colors duration-200",
-                  activeTab === 'viewer' 
-                    ? "text-[var(--foreground)]"
-                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                )}
-              >
-                {/* Sliding background */}
-                {activeTab === 'viewer' && (
-                  <motion.div
-                    layoutId="nav-slider"
-                    className={cn(
-                      "absolute inset-0 rounded-[0.25em] sm:rounded-[0.375em]",
-                      "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
-                      "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
-                      "dark:from-[var(--module)] dark:to-[var(--card)]",
-                      "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]"
-                    )}
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-                {/* LED indicator */}
-                <span 
-                  className={cn(
-                    "absolute top-[0.25em] right-[0.25em] w-[0.375em] h-[0.375em] rounded-full transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)] z-10",
-                    activeTab === 'viewer' 
-                      ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]" 
-                      : "bg-[var(--led-inactive)]"
-                  )}
-                />
-                <BookOpen className="w-[1em] h-[1em] relative z-10" />
-                <span className="hidden xs:inline relative z-10">Flipbook</span>
-              </button>
-              
-              <button
                 onClick={() => { haptic('selection'); playSoundIfEnabled('slide'); setActiveTab('gallery') }}
                 className={cn(
                   "relative flex items-center gap-[0.375em] sm:gap-[0.5em] px-[0.75em] sm:px-[1em] py-[0.5em] rounded-[0.25em] sm:rounded-[0.375em] text-[1em] font-medium",
@@ -238,6 +203,43 @@ export default function Home() {
                 <Grid3X3 className="w-[1em] h-[1em] relative z-10" />
                 <span className="hidden xs:inline relative z-10">Gallery</span>
               </button>
+              
+              <button
+                onClick={() => { haptic('selection'); playSoundIfEnabled('slide'); setActiveTab('viewer') }}
+                className={cn(
+                  "relative flex items-center gap-[0.375em] sm:gap-[0.5em] px-[0.75em] sm:px-[1em] py-[0.5em] rounded-[0.25em] sm:rounded-[0.375em] text-[1em] font-medium",
+                  "transition-colors duration-200",
+                  activeTab === 'viewer' 
+                    ? "text-[var(--foreground)]"
+                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                )}
+              >
+                {/* Sliding background */}
+                {activeTab === 'viewer' && (
+                  <motion.div
+                    layoutId="nav-slider"
+                    className={cn(
+                      "absolute inset-0 rounded-[0.25em] sm:rounded-[0.375em]",
+                      "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
+                      "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
+                      "dark:from-[var(--module)] dark:to-[var(--card)]",
+                      "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]"
+                    )}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
+                {/* LED indicator */}
+                <span 
+                  className={cn(
+                    "absolute top-[0.25em] right-[0.25em] w-[0.375em] h-[0.375em] rounded-full transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)] z-10",
+                    activeTab === 'viewer' 
+                      ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]" 
+                      : "bg-[var(--led-inactive)]"
+                  )}
+                />
+                <BookOpen className="w-[1em] h-[1em] relative z-10" />
+                <span className="hidden xs:inline relative z-10">Flipbook</span>
+              </button>
             </div>
           </div>
           
@@ -250,12 +252,15 @@ export default function Home() {
                   <HardwareButton3D
                     variant="ghost"
                     size="icon"
-                    onClick={() => viewerRef.current?.upload()}
+                    onClick={() => {
+                      if (activeTab === 'gallery') {
+                        setActiveTab('viewer')
+                        setTimeout(() => viewerRef.current?.upload(), 100)
+                      } else {
+                        viewerRef.current?.upload()
+                      }
+                    }}
                     hapticType="light"
-                    disabled={activeTab !== 'viewer'}
-                    className={cn(
-                      activeTab !== 'viewer' && "opacity-30 pointer-events-none"
-                    )}
                   >
                     <Upload className="w-[1em] h-[1em]" />
                   </HardwareButton3D>
