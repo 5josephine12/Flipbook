@@ -282,25 +282,25 @@ function playSoft(ctx: AudioContext): void {
   noiseSource.start(now)
 }
 
-// Tick sound for counting numbers - subtle, soft click
+// Tick sound for counting numbers - very subtle
 function playTick(ctx: AudioContext): void {
   const now = ctx.currentTime
   
-  // Very soft, high-frequency tick
+  // Ultra-soft, airy tick
   const osc = ctx.createOscillator()
   osc.type = 'sine'
-  const basePitch = 2400 + Math.random() * 100
+  const basePitch = 3000 + Math.random() * 100
   osc.frequency.setValueAtTime(basePitch, now)
-  osc.frequency.exponentialRampToValueAtTime(basePitch * 0.8, now + 0.008)
+  osc.frequency.exponentialRampToValueAtTime(basePitch * 0.85, now + 0.006)
   
   const gainNode = ctx.createGain()
-  gainNode.gain.setValueAtTime(0.004, now)
-  gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.008)
+  gainNode.gain.setValueAtTime(0.0015, now)
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.006)
   
   osc.connect(gainNode)
   gainNode.connect(ctx.destination)
   osc.start(now)
-  osc.stop(now + 0.008)
+  osc.stop(now + 0.006)
 }
 
 // Ultra-subtle hover sound - barely perceptible
