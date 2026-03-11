@@ -115,7 +115,7 @@ export const HardwareButton3D = forwardRef<HTMLButtonElement, HardwareButton3DPr
         onClick={handleClick}
         onMouseDown={() => setIsPressed(true)}
         onMouseUp={() => setIsPressed(false)}
-        onMouseEnter={() => setIsHovered(true)}
+        onMouseEnter={() => { setIsHovered(true); playSoundIfEnabled('hover') }}
         onMouseLeave={() => { setIsPressed(false); setIsHovered(false) }}
         {...props}
       >

@@ -223,18 +223,28 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
     flipbook.goToFrame(targetFrame, false)
   }, [frames.length, flipbook])
   
+  // Track previous frame for scrubber sound
+  const prevScrubFrameRef = useRef<number>(-1)
+  
   const handleScrubberPointerDown = useCallback((e: React.PointerEvent) => {
     setIsDraggingScrubber(true)
     haptic('light')
+    playSoundIfEnabled('scrub')
+    prevScrubFrameRef.current = flipbook.currentFrame
     e.currentTarget.setPointerCapture(e.pointerId)
     handleScrubberInteraction(e.clientX)
-  }, [handleScrubberInteraction])
+  }, [handleScrubberInteraction, flipbook.currentFrame])
   
   const handleScrubberPointerMove = useCallback((e: React.PointerEvent) => {
     if (!isDraggingScrubber) return
     hapticThrottled('tick')
+    // Only play scrub sound when frame changes
+    if (flipbook.currentFrame !== prevScrubFrameRef.current) {
+      playSoundIfEnabled('scrub')
+      prevScrubFrameRef.current = flipbook.currentFrame
+    }
     handleScrubberInteraction(e.clientX)
-  }, [isDraggingScrubber, handleScrubberInteraction])
+  }, [isDraggingScrubber, handleScrubberInteraction, flipbook.currentFrame])
   
   const handleScrubberPointerUp = useCallback(() => {
     setIsDraggingScrubber(false)

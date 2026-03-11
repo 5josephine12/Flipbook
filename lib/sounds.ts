@@ -25,7 +25,7 @@ function getAudioContext(): AudioContext | null {
   return audioContext
 }
 
-export type SoundType = 'click' | 'toggle' | 'slide' | 'scrub' | 'filmstrip' | 'pageFlip' | 'soft'
+export type SoundType = 'click' | 'toggle' | 'slide' | 'scrub' | 'filmstrip' | 'pageFlip' | 'soft' | 'hover'
 
 // Create filtered noise for paper-like sounds
 function createFilteredNoise(ctx: AudioContext, duration: number, highpass: number, lowpass: number): AudioBufferSourceNode {
@@ -212,43 +212,45 @@ function playFilmstrip(ctx: AudioContext): void {
   noiseSource.start(now)
 }
 
-// Paper flip sound - like turning a page
+// Paper flip sound - soft, airy, like actual paper
 function playPageFlip(ctx: AudioContext): void {
   const now = ctx.currentTime
   
-  // Paper rustle - longer, textured noise
-  const duration = 0.035 + Math.random() * 0.015 // Slight variation
+  // Very short, breathy paper rustle
+  const duration = 0.025 + Math.random() * 0.01 // 25-35ms, very quick
   const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * duration, ctx.sampleRate)
   const noiseData = noiseBuffer.getChannelData(0)
   
   for (let i = 0; i < noiseData.length; i++) {
     const t = i / noiseData.length
-    // Paper-like envelope: quick attack, longer tail
-    const envelope = t < 0.1 
-      ? t * 10 
-      : Math.exp(-(t - 0.1) * 8)
-    // Add some crinkle texture
-    const crinkle = Math.sin(i * 0.1) * 0.3 + 1
-    noiseData[i] = (Math.random() * 2 - 1) * envelope * crinkle * 0.7
+    // Soft envelope: gentle attack, quick fade
+    const envelope = Math.sin(t * Math.PI) * Math.exp(-t * 3)
+    // Very subtle texture variation
+    noiseData[i] = (Math.random() * 2 - 1) * envelope * 0.4
   }
   
   const noiseSource = ctx.createBufferSource()
   noiseSource.buffer = noiseBuffer
   
-  // Bandpass for paper-like quality
-  const filter = ctx.createBiquadFilter()
-  filter.type = 'bandpass'
-  filter.frequency.setValueAtTime(3000, now)
-  filter.frequency.exponentialRampToValueAtTime(1500, now + duration)
-  filter.Q.value = 0.5
+  // Highpass filter for airy quality (removes low rumble)
+  const highpass = ctx.createBiquadFilter()
+  highpass.type = 'highpass'
+  highpass.frequency.value = 2000
+  highpass.Q.value = 0.3
+  
+  // Gentle lowpass to smooth it out
+  const lowpass = ctx.createBiquadFilter()
+  lowpass.type = 'lowpass'
+  lowpass.frequency.value = 8000
+  lowpass.Q.value = 0.5
   
   const gainNode = ctx.createGain()
-  gainNode.gain.setValueAtTime(0.02, now)
-  gainNode.gain.linearRampToValueAtTime(0.025, now + 0.005)
+  gainNode.gain.setValueAtTime(0.008, now) // Very quiet
   gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration)
   
-  noiseSource.connect(filter)
-  filter.connect(gainNode)
+  noiseSource.connect(highpass)
+  highpass.connect(lowpass)
+  lowpass.connect(gainNode)
   gainNode.connect(ctx.destination)
   noiseSource.start(now)
 }
@@ -280,6 +282,39 @@ function playSoft(ctx: AudioContext): void {
   noiseSource.start(now)
 }
 
+// Ultra-subtle hover sound - barely perceptible
+function playHover(ctx: AudioContext): void {
+  const now = ctx.currentTime
+  
+  // Extremely short, airy whisper
+  const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.008, ctx.sampleRate)
+  const noiseData = noiseBuffer.getChannelData(0)
+  for (let i = 0; i < noiseData.length; i++) {
+    const t = i / noiseData.length
+    // Very gentle envelope
+    const envelope = Math.sin(t * Math.PI) * 0.5
+    noiseData[i] = (Math.random() * 2 - 1) * envelope
+  }
+  
+  const noiseSource = ctx.createBufferSource()
+  noiseSource.buffer = noiseBuffer
+  
+  // Very high frequency for airy quality
+  const highpass = ctx.createBiquadFilter()
+  highpass.type = 'highpass'
+  highpass.frequency.value = 5000
+  highpass.Q.value = 0.2
+  
+  const gainNode = ctx.createGain()
+  gainNode.gain.setValueAtTime(0.004, now) // Extremely quiet
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.008)
+  
+  noiseSource.connect(highpass)
+  highpass.connect(gainNode)
+  gainNode.connect(ctx.destination)
+  noiseSource.start(now)
+}
+
 export function playSound(type: SoundType = 'click'): void {
   const ctx = getAudioContext()
   if (!ctx) return
@@ -305,6 +340,9 @@ export function playSound(type: SoundType = 'click'): void {
       break
     case 'soft':
       playSoft(ctx)
+      break
+    case 'hover':
+      playHover(ctx)
       break
   }
 }

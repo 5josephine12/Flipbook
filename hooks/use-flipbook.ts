@@ -130,6 +130,12 @@ export function useFlipbook({ frames, mode, onFrameChange }: UseFlipbookOptions)
       
       const targetFrame = clampFrame(state.currentFrame + direction * framesToFlip)
       
+      // Only proceed if frame actually changes
+      if (targetFrame === state.currentFrame) {
+        accumulatedDelta.current = 0
+        return
+      }
+      
       // Calculate velocity based on scroll speed (pixels per ms)
       const rawVelocity = Math.abs(deltaY) / Math.max(timeDelta, 8)
       
@@ -150,7 +156,7 @@ export function useFlipbook({ frames, mode, onFrameChange }: UseFlipbookOptions)
         velocity: rawVelocity
       }))
       
-      // Play page flip sound
+      // Play page flip sound only when frame changes
       playSoundIfEnabled('pageFlip')
       
       // Always animate smoothly (no animation skip)
@@ -212,6 +218,8 @@ export function useFlipbook({ frames, mode, onFrameChange }: UseFlipbookOptions)
       const nextFrame = (state.currentFrame + 1) % frameCount
       // During playback, always use normal velocity (1.0) for fast animations
       setScrollVelocity(1.0)
+      // Play page flip sound during playback
+      playSoundIfEnabled('pageFlip')
       setState(prev => ({
         ...prev,
         currentFrame: nextFrame

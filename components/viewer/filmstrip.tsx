@@ -292,6 +292,7 @@ function FilmstripFrame({
   return (
     <motion.button
       onClick={() => { haptic('selection'); playSoundIfEnabled('filmstrip'); onClick() }}
+      onMouseEnter={() => { if (!isActive) playSoundIfEnabled('hover') }}
       className={cn(
         "relative flex-shrink-0 overflow-hidden rounded-sm",
         "border transition-all duration-200",
