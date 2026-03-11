@@ -424,7 +424,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                   {/* Animation mode slider */}
                   <div 
                     className={cn(
-                      "flex items-center gap-0.5 p-1 rounded-[0.6em]",
+                      "flex items-center gap-0.5 p-1 rounded-[0.6em] flex-shrink-0",
                       "bg-[var(--recess)]",
                       "shadow-[inset_0_2px_4px_-1px_rgba(0,0,0,0.1),inset_0_1px_2px_-1px_rgba(0,0,0,0.06)]",
                       "dark:shadow-[inset_0_2px_4px_-1px_rgba(0,0,0,0.3),inset_0_1px_2px_-1px_rgba(0,0,0,0.2)]"
@@ -435,7 +435,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                         <button
                           onClick={() => { haptic('selection'); setAnimationMode('classic') }}
                           className={cn(
-                            "relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-[0.5em]",
+                            "relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 aspect-square rounded-[0.5em]",
                             "transition-colors duration-200",
                             animationMode === 'classic'
                               ? "text-[var(--foreground)]"
@@ -475,7 +475,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                         <button
                           onClick={() => { haptic('selection'); setAnimationMode('waterfall') }}
                           className={cn(
-                            "relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-[0.5em]",
+                            "relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 aspect-square rounded-[0.5em]",
                             "transition-colors duration-200",
                             animationMode === 'waterfall'
                               ? "text-[var(--foreground)]"
@@ -515,7 +515,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                         <button
                           onClick={() => { haptic('selection'); setAnimationMode('slide') }}
                           className={cn(
-                            "relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-[0.5em]",
+                            "relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 aspect-square rounded-[0.5em]",
                             "transition-colors duration-200",
                             animationMode === 'slide'
                               ? "text-[var(--foreground)]"
@@ -557,7 +557,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                       <HardwareButton3D 
                         variant="ghost" 
                         size="icon"
-                        className="h-8 w-8 sm:h-9 sm:w-9"
+                        className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
                         hapticType="medium"
                         onClick={() => flipbook.firstFrame()}
                       >
@@ -572,7 +572,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                       <HardwareButton3D 
                         variant="ghost" 
                         size="icon"
-                        className="h-8 w-8 sm:h-9 sm:w-9"
+                        className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
                         hapticType="light"
                         onClick={() => flipbook.prevFrame()}
                       >
@@ -587,7 +587,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                       <HardwareButton3D 
                         variant="default" 
                         size="icon" 
-                        className="h-8 w-8 sm:h-11 sm:w-11"
+                        className="h-8 w-8 sm:h-11 sm:w-11 flex-shrink-0 aspect-square"
                         hapticType="medium"
                         onClick={() => flipbook.setIsPlaying(!flipbook.isPlaying)}
                       >
@@ -606,7 +606,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                       <HardwareButton3D 
                         variant="ghost" 
                         size="icon"
-                        className="h-8 w-8 sm:h-9 sm:w-9"
+                        className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
                         hapticType="light"
                         onClick={() => flipbook.nextFrame()}
                       >
@@ -621,7 +621,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                       <HardwareButton3D 
                         variant="ghost" 
                         size="icon"
-                        className="h-8 w-8 sm:h-9 sm:w-9"
+                        className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
                         hapticType="medium"
                         onClick={() => flipbook.lastFrame()}
                       >
