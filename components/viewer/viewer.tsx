@@ -421,30 +421,50 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                 
                 {/* Playback controls */}
                 <div className="flex items-center justify-center gap-1.5">
-                  {/* Animation mode toggle */}
+                  {/* Animation mode buttons */}
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <HardwareButton3D 
-                        variant="default" 
+                        variant={animationMode === 'classic' ? 'default' : 'ghost'}
                         size="icon"
                         className="h-11 w-11"
                         hapticType="medium"
-                        onClick={() => setAnimationMode(prev => {
-                          const modes: AnimationMode[] = ['classic', 'waterfall', 'slide']
-                          const currentIndex = modes.indexOf(prev)
-                          return modes[(currentIndex + 1) % modes.length]
-                        })}
+                        onClick={() => setAnimationMode('classic')}
                       >
-                        {animationMode === 'classic' && <Layers className="w-5 h-5" />}
-                        {animationMode === 'waterfall' && <Wind className="w-5 h-5" />}
-                        {animationMode === 'slide' && <CreditCard className="w-5 h-5" />}
+                        <Layers className="w-5 h-5" />
                       </HardwareButton3D>
                     </TooltipTrigger>
-                    <TooltipContent>
-                      {animationMode === 'classic' && 'Classic flip'}
-                      {animationMode === 'waterfall' && 'Waterfall'}
-                      {animationMode === 'slide' && 'Slide'}
-                    </TooltipContent>
+                    <TooltipContent>Classic flip</TooltipContent>
+                  </Tooltip>
+                  
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HardwareButton3D 
+                        variant={animationMode === 'waterfall' ? 'default' : 'ghost'}
+                        size="icon"
+                        className="h-11 w-11"
+                        hapticType="medium"
+                        onClick={() => setAnimationMode('waterfall')}
+                      >
+                        <Wind className="w-5 h-5" />
+                      </HardwareButton3D>
+                    </TooltipTrigger>
+                    <TooltipContent>Waterfall</TooltipContent>
+                  </Tooltip>
+                  
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HardwareButton3D 
+                        variant={animationMode === 'slide' ? 'default' : 'ghost'}
+                        size="icon"
+                        className="h-11 w-11"
+                        hapticType="medium"
+                        onClick={() => setAnimationMode('slide')}
+                      >
+                        <CreditCard className="w-5 h-5" />
+                      </HardwareButton3D>
+                    </TooltipTrigger>
+                    <TooltipContent>Slide</TooltipContent>
                   </Tooltip>
                   
                   <div className="w-px h-6 bg-border mx-3" />
