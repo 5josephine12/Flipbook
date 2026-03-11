@@ -52,7 +52,7 @@ export function Flipbook({
       case 'waterfall':
         return { maxFrames: WATERFALL_VISIBLE_COUNT, cleanupTime: 800 }
       case 'slide':
-        return { maxFrames: 1, cleanupTime: 700 }
+        return { maxFrames: 1, cleanupTime: 750 }
       default:
         return { maxFrames: 2, cleanupTime: 450 }
     }
@@ -88,13 +88,13 @@ export function Flipbook({
         
         const flyingId = newFlying.id
         
-        // For slide animation: transition from front to back after the arc out completes
+        // For slide animation: transition from front to back at the apex (when card is furthest to side)
         if (animationMode === 'slide') {
           setTimeout(() => {
             setFlyingFrames(prev => prev.map(f => 
               f.id === flyingId ? { ...f, phase: 'back' as const } : f
             ))
-          }, 280) // after phase 1 duration (0.28s)
+          }, 290) // 45% of 0.65s = apex of the arc, when it starts coming back
         }
         
         setTimeout(() => {
@@ -189,49 +189,32 @@ export function Flipbook({
     }
   }
   
-  // Slide animation - real card shuffle: card lifts forward, arcs to the side, sweeps behind
+  // Slide animation - real card shuffle: continuous arc motion
+  // Card lifts up in front, arcs to the side, then sweeps around behind and settles
   const getSlideAnimation = (flying: typeof flyingFrames[0], index: number) => {
     const directionMultiplier = flying.direction === 'forward' ? -1 : 1
+    const sideDistance = 100 // how far to the side
+    const liftHeight = -40 // how high to lift (negative = up)
     
-    // Phase-based animation: different targets for front vs back phase
-    if (flying.phase === 'front') {
-      // Phase 1: Lift up and arc out to the side (visible in front)
-      return {
-        initial: { 
-          x: 0, 
-          y: 0, 
-          scale: 1, 
-          opacity: 1
-        },
-        animate: {
-          x: 80 * directionMultiplier,
-          y: -35, // lift up
-          scale: 1.02, // slightly larger when lifted
-          opacity: 1,
-          transition: {
-            duration: 0.28,
-            ease: [0.32, 0, 0.67, 0] // ease-in for pickup feel
-          }
-        }
-      }
-    } else {
-      // Phase 2: Arc back and settle behind the deck (stays visible, z-index handles layering)
-      return {
-        initial: { 
-          x: 80 * directionMultiplier, 
-          y: -35, 
-          scale: 1.02, 
-          opacity: 1
-        },
-        animate: {
-          x: 0,
-          y: 0, // return to original position behind
-          scale: 1,
-          opacity: 1, // stay fully visible - the z-index change makes it go behind
-          transition: {
-            duration: 0.35,
-            ease: [0.33, 1, 0.68, 1] // ease-out for settle feel
-          }
+    return {
+      initial: { 
+        x: 0, 
+        y: 0, 
+        scale: 1, 
+        opacity: 1
+      },
+      animate: {
+        // Keyframes: start -> lift+side -> far side (apex) -> arc back -> settle behind
+        x: [0, sideDistance * 0.6 * directionMultiplier, sideDistance * directionMultiplier, sideDistance * 0.4 * directionMultiplier, 0],
+        y: [0, liftHeight, liftHeight * 0.6, liftHeight * 0.2, 0],
+        scale: [1, 1.03, 1.02, 1, 0.99],
+        opacity: 1,
+        transition: {
+          duration: 0.65,
+          times: [0, 0.25, 0.45, 0.7, 1],
+          ease: 'easeInOut',
+          x: { ease: [0.4, 0, 0.2, 1] },
+          y: { ease: [0.4, 0, 0.2, 1] }
         }
       }
     }
