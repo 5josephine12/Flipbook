@@ -4,6 +4,7 @@
 // Generates subtle, physical-feeling sounds - like keyboard presses and paper
 
 let audioContext: AudioContext | null = null
+let isResuming = false
 
 function getAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null
@@ -18,11 +19,54 @@ function getAudioContext(): AudioContext | null {
   }
   
   // Resume if suspended (browsers require user interaction)
-  if (audioContext.state === 'suspended') {
-    audioContext.resume()
+  if (audioContext.state === 'suspended' && !isResuming) {
+    isResuming = true
+    audioContext.resume().then(() => {
+      isResuming = false
+    }).catch(() => {
+      isResuming = false
+    })
+  }
+  
+  // Only return context if it's running
+  if (audioContext.state !== 'running') {
+    return null
   }
   
   return audioContext
+}
+
+// Initialize audio context on first user interaction
+function initAudioContext(): void {
+  if (typeof window === 'undefined') return
+  
+  const initOnInteraction = () => {
+    if (!audioContext) {
+      try {
+        audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
+      } catch {
+        return
+      }
+    }
+    
+    if (audioContext.state === 'suspended') {
+      audioContext.resume()
+    }
+    
+    // Remove listeners after first interaction
+    window.removeEventListener('click', initOnInteraction)
+    window.removeEventListener('touchstart', initOnInteraction)
+    window.removeEventListener('keydown', initOnInteraction)
+  }
+  
+  window.addEventListener('click', initOnInteraction)
+  window.addEventListener('touchstart', initOnInteraction)
+  window.addEventListener('keydown', initOnInteraction)
+}
+
+// Auto-initialize when module loads
+if (typeof window !== 'undefined') {
+  initAudioContext()
 }
 
 export type SoundType = 'click' | 'toggle' | 'slide' | 'scrub' | 'filmstrip' | 'pageFlip' | 'soft' | 'hover' | 'tick'
@@ -294,8 +338,8 @@ function playTick(ctx: AudioContext): void {
   osc.frequency.exponentialRampToValueAtTime(basePitch * 0.85, now + 0.006)
   
   const gainNode = ctx.createGain()
-  gainNode.gain.setValueAtTime(0.0006, now)
-  gainNode.gain.exponentialRampToValueAtTime(0.00005, now + 0.006)
+  gainNode.gain.setValueAtTime(0.0003, now)
+  gainNode.gain.exponentialRampToValueAtTime(0.00002, now + 0.006)
   
   osc.connect(gainNode)
   gainNode.connect(ctx.destination)
@@ -337,8 +381,24 @@ function playHover(ctx: AudioContext): void {
 }
 
 export function playSound(type: SoundType = 'click'): void {
-  const ctx = getAudioContext()
-  if (!ctx) return
+  // Ensure audio context exists and try to resume if needed
+  if (typeof window === 'undefined') return
+  
+  if (!audioContext) {
+    try {
+      audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
+    } catch {
+      return
+    }
+  }
+  
+  // Try to resume suspended context
+  if (audioContext.state === 'suspended') {
+    audioContext.resume()
+  }
+  
+  // Play sound even if context might still be resuming - it will queue
+  const ctx = audioContext
   
   switch (type) {
     case 'click':
