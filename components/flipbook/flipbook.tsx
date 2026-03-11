@@ -215,7 +215,7 @@ export function Flipbook({
         }
       }
     } else {
-      // Phase 2: Arc back and settle behind the deck
+      // Phase 2: Arc back and settle behind the deck (stays visible, z-index handles layering)
       return {
         initial: { 
           x: 80 * directionMultiplier, 
@@ -225,11 +225,11 @@ export function Flipbook({
         },
         animate: {
           x: 0,
-          y: 4, // settle slightly below
-          scale: 0.98,
-          opacity: 0,
+          y: 0, // return to original position behind
+          scale: 1,
+          opacity: 1, // stay fully visible - the z-index change makes it go behind
           transition: {
-            duration: 0.38,
+            duration: 0.35,
             ease: [0.33, 1, 0.68, 1] // ease-out for settle feel
           }
         }
