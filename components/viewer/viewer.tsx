@@ -167,6 +167,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
       const savedId = await saveHighlight(metadata, frames)
       setIsSaved(true)
       haptic('success')
+      playSoundIfEnabled('toggle')
       toast.success('Saved to Gallery', {
         action: {
           label: 'Undo',
@@ -177,11 +178,13 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
               console.log('[v0] Undo: deleteHighlight completed')
               setIsSaved(false)
               haptic('light')
+              playSoundIfEnabled('toggle')
               toast.success('Removed from Gallery')
               onGallerySaved?.() // Refresh gallery
               console.log('[v0] Undo: onGallerySaved called')
             } catch (error) {
               console.error('[v0] Undo error:', error)
+              playSoundIfEnabled('click')
               toast.error('Failed to undo')
             }
           }
@@ -189,6 +192,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
       })
       onGallerySaved?.()
     } catch {
+      playSoundIfEnabled('click')
       toast.error('Failed to save')
     }
   }, [metadata, frames, onGallerySaved])
