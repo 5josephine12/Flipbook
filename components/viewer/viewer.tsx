@@ -420,7 +420,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                 </div>
                 
                 {/* Playback controls */}
-                <div className="flex items-center justify-center sm:justify-between w-full gap-2 sm:gap-0">
+                <div className="flex items-center justify-between sm:justify-center w-full sm:gap-4">
                   {/* Animation mode slider */}
                   <div 
                     className={cn(
@@ -553,7 +553,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                   
                   {/* Navigation and playback buttons */}
                   <div className="flex items-center gap-0.5 sm:gap-1.5">
-                    <div className="w-px h-5 sm:h-6 bg-border mx-1.5 sm:mx-2 flex-shrink-0" />
+                    <div className="w-px h-5 sm:h-6 bg-border mx-2 sm:mx-3 flex-shrink-0" />
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <HardwareButton3D 
