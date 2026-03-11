@@ -171,13 +171,17 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
         action: {
           label: 'Undo',
           onClick: async () => {
+            console.log('[v0] Undo clicked, savedId:', savedId)
             try {
               await deleteHighlight(savedId)
+              console.log('[v0] Undo: deleteHighlight completed')
               setIsSaved(false)
               haptic('light')
               toast.success('Removed from Gallery')
               onGallerySaved?.() // Refresh gallery
-            } catch {
+              console.log('[v0] Undo: onGallerySaved called')
+            } catch (error) {
+              console.error('[v0] Undo error:', error)
               toast.error('Failed to undo')
             }
           }
