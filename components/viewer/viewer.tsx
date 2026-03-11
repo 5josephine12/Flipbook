@@ -425,12 +425,20 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <HardwareButton3D 
-                        variant={animationMode === 'classic' ? 'default' : 'ghost'}
+                        variant="default"
                         size="icon"
-                        className="h-11 w-11"
+                        className="h-11 w-11 relative"
                         hapticType="medium"
                         onClick={() => setAnimationMode('classic')}
                       >
+                        <span
+                          className={cn(
+                            "absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full transition-all duration-300",
+                            animationMode === 'classic'
+                              ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
+                              : "bg-[var(--led-inactive)]"
+                          )}
+                        />
                         <Layers className="w-5 h-5" />
                       </HardwareButton3D>
                     </TooltipTrigger>
@@ -440,12 +448,20 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <HardwareButton3D 
-                        variant={animationMode === 'waterfall' ? 'default' : 'ghost'}
+                        variant="default"
                         size="icon"
-                        className="h-11 w-11"
+                        className="h-11 w-11 relative"
                         hapticType="medium"
                         onClick={() => setAnimationMode('waterfall')}
                       >
+                        <span
+                          className={cn(
+                            "absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full transition-all duration-300",
+                            animationMode === 'waterfall'
+                              ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
+                              : "bg-[var(--led-inactive)]"
+                          )}
+                        />
                         <Wind className="w-5 h-5" />
                       </HardwareButton3D>
                     </TooltipTrigger>
@@ -455,12 +471,20 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <HardwareButton3D 
-                        variant={animationMode === 'slide' ? 'default' : 'ghost'}
+                        variant="default"
                         size="icon"
-                        className="h-11 w-11"
+                        className="h-11 w-11 relative"
                         hapticType="medium"
                         onClick={() => setAnimationMode('slide')}
                       >
+                        <span
+                          className={cn(
+                            "absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full transition-all duration-300",
+                            animationMode === 'slide'
+                              ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
+                              : "bg-[var(--led-inactive)]"
+                          )}
+                        />
                         <CreditCard className="w-5 h-5" />
                       </HardwareButton3D>
                     </TooltipTrigger>
