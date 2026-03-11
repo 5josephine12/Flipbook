@@ -51,7 +51,7 @@ export function Flipbook({
       case 'waterfall':
         return { maxFrames: WATERFALL_VISIBLE_COUNT, cleanupTime: 800 }
       case 'slide':
-        return { maxFrames: 3, cleanupTime: 500 }
+        return { maxFrames: 3, cleanupTime: 650 }
       default:
         return { maxFrames: 2, cleanupTime: 450 }
     }
@@ -177,28 +177,36 @@ export function Flipbook({
     }
   }
   
-  // Slide animation - cards slide behind the stack like dealing from a deck
+  // Slide animation - realistic card dealing: lift up, slide to side, then back to bottom of deck
   const getSlideAnimation = (flying: typeof flyingFrames[0], index: number) => {
     const directionMultiplier = flying.direction === 'forward' ? -1 : 1
-    const slideDistance = 25 + index * 8 // subtle horizontal offset
-    const depthOffset = 4 + index * 2 // cards move back in depth (down = behind)
-    const scaleReduction = 0.97 - index * 0.015 // slightly smaller as they stack behind
-    const opacityReduction = 1 - (index * 0.3)
+    const slideDistance = 60 + index * 10
+    const liftAmount = -25 // lift up first (negative = up)
+    const settleAmount = 8 + index * 3 // settle down behind stack
     
     return {
-      initial: { x: 0, y: 0, scale: 1, opacity: 1 },
+      initial: { 
+        x: 0, 
+        y: 0, 
+        scale: 1, 
+        opacity: 1,
+        rotateZ: 0
+      },
       animate: {
-        x: slideDistance * directionMultiplier + (flying.randomX || 0) * 0.3,
-        y: depthOffset, // move down slightly to appear "behind"
-        scale: scaleReduction,
-        opacity: Math.max(0, opacityReduction),
+        // Keyframe animation: lift -> slide -> settle back
+        x: [0, 0, slideDistance * directionMultiplier, slideDistance * directionMultiplier * 0.3],
+        y: [0, liftAmount, liftAmount * 0.5, settleAmount],
+        scale: [1, 1.02, 0.98, 0.95 - index * 0.02],
+        rotateZ: [0, directionMultiplier * -2, directionMultiplier * 3, 0],
+        opacity: [1, 1, 0.9, Math.max(0, 0.7 - index * 0.25)],
         transition: {
-          duration: 0.32,
+          duration: 0.55,
+          times: [0, 0.2, 0.6, 1], // keyframe timing
           ease: [0.22, 1, 0.36, 1],
-          x: { duration: 0.28, ease: [0.32, 0.72, 0, 1] },
-          y: { duration: 0.25, ease: 'easeOut' },
-          scale: { duration: 0.25, ease: 'easeOut' },
-          opacity: { duration: 0.22, delay: 0.08, ease: 'easeIn' }
+          x: { ease: [0.32, 0.72, 0, 1] },
+          y: { ease: [0.34, 1.2, 0.64, 1] },
+          scale: { ease: 'easeInOut' },
+          rotateZ: { ease: 'easeInOut' }
         }
       }
     }
