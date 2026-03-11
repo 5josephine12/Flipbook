@@ -447,7 +447,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                     </TooltipContent>
                   </Tooltip>
                   
-                  <div className="w-px h-6 bg-border mx-1" />
+                  <div className="w-px h-6 bg-border mx-3" />
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <HardwareButton3D 
