@@ -353,7 +353,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
               transition={{ duration: 0.2 }}
               className="flex-shrink-0 px-4 py-2 pb-4"
             >
-              <div className="max-w-3xl mx-auto space-y-2">
+              <div className="max-w-3xl mx-auto space-y-3">
                 {/* Filmstrip with proximity effects */}
                 <Filmstrip
                   frames={frames}
@@ -420,7 +420,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                 </div>
                 
                 {/* Playback controls */}
-                <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+                <div className="flex items-center justify-between w-full">
                   {/* Animation mode slider */}
                   <div 
                     className={cn(
@@ -551,85 +551,88 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                     </Tooltip>
                   </div>
                   
-                  <div className="w-px h-5 sm:h-6 bg-border mx-1 sm:mx-2" />
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HardwareButton3D 
-                        variant="ghost" 
-                        size="icon"
-                        className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
-                        hapticType="medium"
-                        onClick={() => flipbook.firstFrame()}
-                      >
-                        <ChevronFirst className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      </HardwareButton3D>
-                    </TooltipTrigger>
-                    <TooltipContent>First frame</TooltipContent>
-                  </Tooltip>
-                  
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HardwareButton3D 
-                        variant="ghost" 
-                        size="icon"
-                        className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
-                        hapticType="light"
-                        onClick={() => flipbook.prevFrame()}
-                      >
-                        <SkipBack className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      </HardwareButton3D>
-                    </TooltipTrigger>
-                    <TooltipContent>Previous frame</TooltipContent>
-                  </Tooltip>
-                  
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HardwareButton3D 
-                        variant="default" 
-                        size="icon" 
-                        className="h-8 w-8 sm:h-11 sm:w-11 flex-shrink-0 aspect-square"
-                        hapticType="medium"
-                        onClick={() => flipbook.setIsPlaying(!flipbook.isPlaying)}
-                      >
-                        {flipbook.isPlaying ? (
-                          <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
-                        ) : (
-                          <Play className="w-4 h-4 sm:w-5 sm:h-5 ml-0.5" />
-                        )}
-                      </HardwareButton3D>
-                    </TooltipTrigger>
-                    <TooltipContent>{flipbook.isPlaying ? 'Pause' : 'Play'}</TooltipContent>
-                  </Tooltip>
-                  
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HardwareButton3D 
-                        variant="ghost" 
-                        size="icon"
-                        className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
-                        hapticType="light"
-                        onClick={() => flipbook.nextFrame()}
-                      >
-                        <SkipForward className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      </HardwareButton3D>
-                    </TooltipTrigger>
-                    <TooltipContent>Next frame</TooltipContent>
-                  </Tooltip>
-                  
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HardwareButton3D 
-                        variant="ghost" 
-                        size="icon"
-                        className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
-                        hapticType="medium"
-                        onClick={() => flipbook.lastFrame()}
-                      >
-                        <ChevronLast className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      </HardwareButton3D>
-                    </TooltipTrigger>
-                    <TooltipContent>Last frame</TooltipContent>
-                  </Tooltip>
+                  {/* Navigation and playback buttons */}
+                  <div className="flex items-center gap-1 sm:gap-1.5">
+                    <div className="w-px h-5 sm:h-6 bg-border mx-1 sm:mx-2 flex-shrink-0" />
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HardwareButton3D 
+                          variant="ghost" 
+                          size="icon"
+                          className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
+                          hapticType="medium"
+                          onClick={() => flipbook.firstFrame()}
+                        >
+                          <ChevronFirst className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </HardwareButton3D>
+                      </TooltipTrigger>
+                      <TooltipContent>First frame</TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HardwareButton3D 
+                          variant="ghost" 
+                          size="icon"
+                          className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
+                          hapticType="light"
+                          onClick={() => flipbook.prevFrame()}
+                        >
+                          <SkipBack className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </HardwareButton3D>
+                      </TooltipTrigger>
+                      <TooltipContent>Previous frame</TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HardwareButton3D 
+                          variant="default" 
+                          size="icon" 
+                          className="h-8 w-8 sm:h-11 sm:w-11 flex-shrink-0 aspect-square"
+                          hapticType="medium"
+                          onClick={() => flipbook.setIsPlaying(!flipbook.isPlaying)}
+                        >
+                          {flipbook.isPlaying ? (
+                            <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
+                          ) : (
+                            <Play className="w-4 h-4 sm:w-5 sm:h-5 ml-0.5" />
+                          )}
+                        </HardwareButton3D>
+                      </TooltipTrigger>
+                      <TooltipContent>{flipbook.isPlaying ? 'Pause' : 'Play'}</TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HardwareButton3D 
+                          variant="ghost" 
+                          size="icon"
+                          className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
+                          hapticType="light"
+                          onClick={() => flipbook.nextFrame()}
+                        >
+                          <SkipForward className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </HardwareButton3D>
+                      </TooltipTrigger>
+                      <TooltipContent>Next frame</TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HardwareButton3D 
+                          variant="ghost" 
+                          size="icon"
+                          className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
+                          hapticType="medium"
+                          onClick={() => flipbook.lastFrame()}
+                        >
+                          <ChevronLast className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </HardwareButton3D>
+                      </TooltipTrigger>
+                      <TooltipContent>Last frame</TooltipContent>
+                    </Tooltip>
+                  </div>
                 </div>
               </div>
             </motion.div>
