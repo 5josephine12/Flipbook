@@ -10,7 +10,7 @@ import { useFlipbook } from '@/hooks/use-flipbook'
 import { Flipbook } from '@/components/flipbook'
 import { DropZone } from './drop-zone'
 import { Filmstrip } from './filmstrip'
-import { saveHighlight } from '@/lib/highlights-store'
+import { saveHighlight, deleteHighlight } from '@/lib/highlights-store'
 import { haptic, hapticThrottled } from '@/lib/haptics'
 import { playSoundIfEnabled } from '@/lib/sounds'
 import { HardwareButton3D } from '@/components/hardware-shell'
@@ -164,14 +164,22 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
     if (!metadata || frames.length === 0) return
     
     try {
-      await saveHighlight(metadata, frames)
+      const savedId = await saveHighlight(metadata, frames)
       setIsSaved(true)
       haptic('success')
       toast.success('Saved to Gallery', {
         action: {
           label: 'Undo',
-          onClick: () => {
-            toast.info('Undo not implemented yet')
+          onClick: async () => {
+            try {
+              await deleteHighlight(savedId)
+              setIsSaved(false)
+              haptic('light')
+              toast.success('Removed from Gallery')
+              onGallerySaved?.() // Refresh gallery
+            } catch {
+              toast.error('Failed to undo')
+            }
           }
         }
       })
