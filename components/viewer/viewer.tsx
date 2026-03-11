@@ -420,26 +420,26 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                 </div>
                 
                 {/* Playback controls */}
-                <div className="flex items-center justify-center gap-1.5">
+                <div className="flex items-center justify-center gap-1 sm:gap-1.5">
                   {/* Animation mode buttons */}
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <HardwareButton3D 
                         variant="default"
                         size="icon"
-                        className="h-11 w-11 relative"
+                        className="h-8 w-8 sm:h-11 sm:w-11 relative"
                         hapticType="medium"
                         onClick={() => setAnimationMode('classic')}
                       >
                         <span
                           className={cn(
-                            "absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full transition-all duration-300",
+                            "absolute top-1 right-1 sm:top-1.5 sm:right-1.5 w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300",
                             animationMode === 'classic'
                               ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
                               : "bg-[var(--led-inactive)]"
                           )}
                         />
-                        <Layers className="w-5 h-5" />
+                        <Layers className="w-4 h-4 sm:w-5 sm:h-5" />
                       </HardwareButton3D>
                     </TooltipTrigger>
                     <TooltipContent>Classic flip</TooltipContent>
@@ -450,19 +450,19 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                       <HardwareButton3D 
                         variant="default"
                         size="icon"
-                        className="h-11 w-11 relative"
+                        className="h-8 w-8 sm:h-11 sm:w-11 relative"
                         hapticType="medium"
                         onClick={() => setAnimationMode('waterfall')}
                       >
                         <span
                           className={cn(
-                            "absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full transition-all duration-300",
+                            "absolute top-1 right-1 sm:top-1.5 sm:right-1.5 w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300",
                             animationMode === 'waterfall'
                               ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
                               : "bg-[var(--led-inactive)]"
                           )}
                         />
-                        <Wind className="w-5 h-5" />
+                        <Wind className="w-4 h-4 sm:w-5 sm:h-5" />
                       </HardwareButton3D>
                     </TooltipTrigger>
                     <TooltipContent>Waterfall</TooltipContent>
@@ -473,34 +473,35 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                       <HardwareButton3D 
                         variant="default"
                         size="icon"
-                        className="h-11 w-11 relative"
+                        className="h-8 w-8 sm:h-11 sm:w-11 relative"
                         hapticType="medium"
                         onClick={() => setAnimationMode('slide')}
                       >
                         <span
                           className={cn(
-                            "absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full transition-all duration-300",
+                            "absolute top-1 right-1 sm:top-1.5 sm:right-1.5 w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300",
                             animationMode === 'slide'
                               ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
                               : "bg-[var(--led-inactive)]"
                           )}
                         />
-                        <CreditCard className="w-5 h-5" />
+                        <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
                       </HardwareButton3D>
                     </TooltipTrigger>
                     <TooltipContent>Slide</TooltipContent>
                   </Tooltip>
                   
-                  <div className="w-px h-6 bg-border mx-3" />
+                  <div className="w-px h-5 sm:h-6 bg-border mx-2 sm:mx-3" />
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <HardwareButton3D 
                         variant="ghost" 
                         size="icon"
+                        className="h-8 w-8 sm:h-9 sm:w-9"
                         hapticType="medium"
                         onClick={() => flipbook.firstFrame()}
                       >
-                        <ChevronFirst className="w-4 h-4" />
+                        <ChevronFirst className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </HardwareButton3D>
                     </TooltipTrigger>
                     <TooltipContent>First frame</TooltipContent>
@@ -511,10 +512,11 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                       <HardwareButton3D 
                         variant="ghost" 
                         size="icon"
+                        className="h-8 w-8 sm:h-9 sm:w-9"
                         hapticType="light"
                         onClick={() => flipbook.prevFrame()}
                       >
-                        <SkipBack className="w-4 h-4" />
+                        <SkipBack className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </HardwareButton3D>
                     </TooltipTrigger>
                     <TooltipContent>Previous frame</TooltipContent>
@@ -525,14 +527,14 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                       <HardwareButton3D 
                         variant="default" 
                         size="icon" 
-                        className="h-11 w-11"
+                        className="h-8 w-8 sm:h-11 sm:w-11"
                         hapticType="medium"
                         onClick={() => flipbook.setIsPlaying(!flipbook.isPlaying)}
                       >
                         {flipbook.isPlaying ? (
-                          <Pause className="w-5 h-5" />
+                          <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
                         ) : (
-                          <Play className="w-5 h-5 ml-0.5" />
+                          <Play className="w-4 h-4 sm:w-5 sm:h-5 ml-0.5" />
                         )}
                       </HardwareButton3D>
                     </TooltipTrigger>
@@ -544,10 +546,11 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                       <HardwareButton3D 
                         variant="ghost" 
                         size="icon"
+                        className="h-8 w-8 sm:h-9 sm:w-9"
                         hapticType="light"
                         onClick={() => flipbook.nextFrame()}
                       >
-                        <SkipForward className="w-4 h-4" />
+                        <SkipForward className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </HardwareButton3D>
                     </TooltipTrigger>
                     <TooltipContent>Next frame</TooltipContent>
@@ -558,10 +561,11 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                       <HardwareButton3D 
                         variant="ghost" 
                         size="icon"
+                        className="h-8 w-8 sm:h-9 sm:w-9"
                         hapticType="medium"
                         onClick={() => flipbook.lastFrame()}
                       >
-                        <ChevronLast className="w-4 h-4" />
+                        <ChevronLast className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </HardwareButton3D>
                     </TooltipTrigger>
                     <TooltipContent>Last frame</TooltipContent>
