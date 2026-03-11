@@ -425,7 +425,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <HardwareButton3D 
-                        variant="ghost" 
+                        variant="default" 
                         size="icon"
                         hapticType="medium"
                         onClick={() => setAnimationMode(prev => {
@@ -433,7 +433,6 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                           const currentIndex = modes.indexOf(prev)
                           return modes[(currentIndex + 1) % modes.length]
                         })}
-                        className={cn(animationMode !== 'classic' && "bg-primary/10")}
                       >
                         {animationMode === 'classic' && <Layers className="w-4 h-4" />}
                         {animationMode === 'waterfall' && <Wind className="w-4 h-4" />}
