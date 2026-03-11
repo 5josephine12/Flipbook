@@ -8,10 +8,13 @@ export const metadata: Metadata = {
   description: 'Experience GIFs the way they deserve - frame by frame, like flipping through a physical flipbook. A tactile way to slow down and appreciate animation.',
   keywords: ['GIF', 'flipbook', 'animation', 'frame viewer', 'GIF player', 'frame by frame'],
   authors: [{ name: 'Digital Flipbook' }],
+  metadataBase: new URL('https://flipbook-zeta.vercel.app'),
   openGraph: {
     title: 'Digital Flipbook',
     description: 'Experience GIFs the way they deserve - frame by frame, like flipping through a physical flipbook.',
     type: 'website',
+    url: 'https://flipbook-zeta.vercel.app',
+    siteName: 'Digital Flipbook',
     images: [
       {
         url: '/og-image.png',
@@ -26,6 +29,7 @@ export const metadata: Metadata = {
     title: 'Digital Flipbook',
     description: 'Experience GIFs the way they deserve - frame by frame, like flipping through a physical flipbook.',
     images: ['/og-image.png'],
+    creator: '@5josephine12',
   },
   icons: {
     icon: '/favicon.jpg',
