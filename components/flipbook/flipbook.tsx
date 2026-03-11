@@ -39,6 +39,7 @@ export function Flipbook({
     randomRotateZ?: number
     randomScale?: number
     randomDuration?: number
+    phase?: 'front' | 'back' // for slide animation: starts in front, moves to back
   }>>([])
   const prevFrameRef = useRef(currentFrame)
   
@@ -76,7 +77,8 @@ export function Flipbook({
           randomRotateX: animationMode === 'classic' ? 70 + Math.random() * 15 : 0,
           randomRotateZ: (Math.random() - 0.5) * 4,
           randomScale: 0.9 + Math.random() * 0.08,
-          randomDuration: 0.3 + Math.random() * 0.06
+          randomDuration: 0.3 + Math.random() * 0.06,
+          phase: 'front' as const // start in front for slide animation
         }
         
         setFlyingFrames(prev => {
@@ -85,6 +87,16 @@ export function Flipbook({
         })
         
         const flyingId = newFlying.id
+        
+        // For slide animation: transition from front to back after the lift+slide phase
+        if (animationMode === 'slide') {
+          setTimeout(() => {
+            setFlyingFrames(prev => prev.map(f => 
+              f.id === flyingId ? { ...f, phase: 'back' as const } : f
+            ))
+          }, 330) // 60% of 0.55s animation = when it moves behind
+        }
+        
         setTimeout(() => {
           setFlyingFrames(prev => prev.filter(f => f.id !== flyingId))
         }, config.cleanupTime)
@@ -250,11 +262,16 @@ export function Flipbook({
               ? 'center center'
               : 'top center'
             
-            // For slide mode, cards go behind (lower z-index than current frame)
-            // For other modes, cards fly in front
-            const zIndex = animationMode === 'slide' 
-              ? 4 - index // behind current frame (z-index 5), older = further back
-              : 30 - index // in front of current frame
+            // For slide mode: start in front, then move behind when phase changes
+            // For other modes: cards fly in front throughout
+            let zIndex: number
+            if (animationMode === 'slide') {
+              // Front phase: in front of current frame (z-index > 5)
+              // Back phase: behind current frame (z-index < 5)
+              zIndex = flying.phase === 'front' ? 10 - index : 4 - index
+            } else {
+              zIndex = 30 - index // always in front for classic/waterfall
+            }
             
             return (
               <motion.div
