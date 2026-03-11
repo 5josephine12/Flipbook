@@ -111,8 +111,8 @@ function playClick(ctx: AudioContext): void {
   filter.Q.value = 1.5
   
   const gainNode = ctx.createGain()
-  gainNode.gain.setValueAtTime(0.025, now)
-  gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.008)
+  gainNode.gain.setValueAtTime(0.15, now)
+  gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.008)
   
   noiseSource.connect(filter)
   filter.connect(gainNode)
@@ -132,8 +132,8 @@ function playToggle(ctx: AudioContext): void {
   osc.frequency.exponentialRampToValueAtTime(80, now + 0.015)
   
   const oscGain = ctx.createGain()
-  oscGain.gain.setValueAtTime(0.02, now)
-  oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.015)
+  oscGain.gain.setValueAtTime(0.12, now)
+  oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.015)
   
   osc.connect(oscGain)
   oscGain.connect(ctx.destination)
@@ -155,7 +155,7 @@ function playToggle(ctx: AudioContext): void {
   highpass.frequency.value = 4000
   
   const clickGain = ctx.createGain()
-  clickGain.gain.setValueAtTime(0.018, now)
+  clickGain.gain.setValueAtTime(0.1, now)
   
   clickSource.connect(highpass)
   highpass.connect(clickGain)
@@ -189,9 +189,9 @@ function playSlide(ctx: AudioContext): void {
   filter.Q.value = 2
   
   const gainNode = ctx.createGain()
-  gainNode.gain.setValueAtTime(0.012, now)
-  gainNode.gain.linearRampToValueAtTime(0.015, now + 0.025)
-  gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.06)
+  gainNode.gain.setValueAtTime(0.08, now)
+  gainNode.gain.linearRampToValueAtTime(0.1, now + 0.025)
+  gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.06)
   
   noiseSource.connect(filter)
   filter.connect(gainNode)
@@ -219,8 +219,8 @@ function playScrub(ctx: AudioContext): void {
   filter.Q.value = 0.8
   
   const gainNode = ctx.createGain()
-  gainNode.gain.setValueAtTime(0.008, now)
-  gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.012)
+  gainNode.gain.setValueAtTime(0.06, now)
+  gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.012)
   
   noiseSource.connect(filter)
   filter.connect(gainNode)
@@ -247,8 +247,8 @@ function playFilmstrip(ctx: AudioContext): void {
   filter.frequency.value = 2000
   
   const gainNode = ctx.createGain()
-  gainNode.gain.setValueAtTime(0.015, now)
-  gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.006)
+  gainNode.gain.setValueAtTime(0.1, now)
+  gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.006)
   
   noiseSource.connect(filter)
   filter.connect(gainNode)
@@ -289,8 +289,8 @@ function playPageFlip(ctx: AudioContext): void {
   lowpass.Q.value = 0.5
   
   const gainNode = ctx.createGain()
-  gainNode.gain.setValueAtTime(0.008, now) // Very quiet
-  gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration)
+  gainNode.gain.setValueAtTime(0.06, now)
+  gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration)
   
   noiseSource.connect(highpass)
   highpass.connect(lowpass)
@@ -317,8 +317,8 @@ function playSoft(ctx: AudioContext): void {
   filter.frequency.value = 3000
   
   const gainNode = ctx.createGain()
-  gainNode.gain.setValueAtTime(0.01, now)
-  gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.005)
+  gainNode.gain.setValueAtTime(0.07, now)
+  gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.005)
   
   noiseSource.connect(filter)
   filter.connect(gainNode)
@@ -338,8 +338,8 @@ function playTick(ctx: AudioContext): void {
   osc.frequency.exponentialRampToValueAtTime(basePitch * 0.85, now + 0.006)
   
   const gainNode = ctx.createGain()
-  gainNode.gain.setValueAtTime(0.0003, now)
-  gainNode.gain.exponentialRampToValueAtTime(0.00002, now + 0.006)
+  gainNode.gain.setValueAtTime(0.025, now)
+  gainNode.gain.exponentialRampToValueAtTime(0.002, now + 0.006)
   
   osc.connect(gainNode)
   gainNode.connect(ctx.destination)
@@ -371,8 +371,8 @@ function playHover(ctx: AudioContext): void {
   highpass.Q.value = 0.2
   
   const gainNode = ctx.createGain()
-  gainNode.gain.setValueAtTime(0.004, now) // Extremely quiet
-  gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.008)
+  gainNode.gain.setValueAtTime(0.04, now)
+  gainNode.gain.exponentialRampToValueAtTime(0.005, now + 0.008)
   
   noiseSource.connect(highpass)
   highpass.connect(gainNode)
