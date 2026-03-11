@@ -348,16 +348,15 @@ export default function Home() {
                 )}
               >
                 {/* Close button */}
-                <button
+                <HardwareButton3D
+                  variant="default"
+                  size="icon"
+                  hapticType="medium"
                   onClick={() => setShowAbout(false)}
-                  className={cn(
-                    "absolute top-2 right-2 sm:top-3 sm:right-3 md:top-4 md:right-4 p-1 sm:p-1.5 rounded-md",
-                    "text-muted-foreground/60 hover:text-muted-foreground",
-                    "transition-colors duration-150"
-                  )}
+                  className="absolute top-2 right-2 sm:top-3 sm:right-3 md:top-4 md:right-4 z-10"
                 >
-                  <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </button>
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                </HardwareButton3D>
                 
                 {/* Manifesto content - uses em units to scale with container font-size */}
                 <div className="space-y-[1em] sm:space-y-[1.2em] md:space-y-[1.4em] text-[1em] sm:text-[0.95em] md:text-[0.9375em] leading-relaxed text-muted-foreground">
