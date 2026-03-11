@@ -20,7 +20,7 @@ function RollingDigit({ digit, className, playSound = false }: { digit: string; 
   
   useEffect(() => {
     if (playSound && prevDigitRef.current !== numericDigit) {
-      playSoundIfEnabled('soft')
+      playSoundIfEnabled('tick')
       prevDigitRef.current = numericDigit
     }
   }, [numericDigit, playSound])

@@ -25,7 +25,7 @@ function getAudioContext(): AudioContext | null {
   return audioContext
 }
 
-export type SoundType = 'click' | 'toggle' | 'slide' | 'scrub' | 'filmstrip' | 'pageFlip' | 'soft' | 'hover'
+export type SoundType = 'click' | 'toggle' | 'slide' | 'scrub' | 'filmstrip' | 'pageFlip' | 'soft' | 'hover' | 'tick'
 
 // Create filtered noise for paper-like sounds
 function createFilteredNoise(ctx: AudioContext, duration: number, highpass: number, lowpass: number): AudioBufferSourceNode {
@@ -282,6 +282,50 @@ function playSoft(ctx: AudioContext): void {
   noiseSource.start(now)
 }
 
+// Tick sound for counting numbers - like a mechanical counter
+function playTick(ctx: AudioContext): void {
+  const now = ctx.currentTime
+  
+  // Short tonal tick with pitch variation for counting feel
+  const osc = ctx.createOscillator()
+  osc.type = 'sine'
+  // Slightly randomize pitch for organic feel
+  const basePitch = 1800 + Math.random() * 200
+  osc.frequency.setValueAtTime(basePitch, now)
+  osc.frequency.exponentialRampToValueAtTime(basePitch * 0.7, now + 0.015)
+  
+  const gainNode = ctx.createGain()
+  gainNode.gain.setValueAtTime(0.012, now)
+  gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.015)
+  
+  osc.connect(gainNode)
+  gainNode.connect(ctx.destination)
+  osc.start(now)
+  osc.stop(now + 0.015)
+  
+  // Add a tiny click texture
+  const clickBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.003, ctx.sampleRate)
+  const clickData = clickBuffer.getChannelData(0)
+  for (let i = 0; i < clickData.length; i++) {
+    clickData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.0008))
+  }
+  
+  const clickSource = ctx.createBufferSource()
+  clickSource.buffer = clickBuffer
+  
+  const highpass = ctx.createBiquadFilter()
+  highpass.type = 'highpass'
+  highpass.frequency.value = 3000
+  
+  const clickGain = ctx.createGain()
+  clickGain.gain.setValueAtTime(0.008, now)
+  
+  clickSource.connect(highpass)
+  highpass.connect(clickGain)
+  clickGain.connect(ctx.destination)
+  clickSource.start(now)
+}
+
 // Ultra-subtle hover sound - barely perceptible
 function playHover(ctx: AudioContext): void {
   const now = ctx.currentTime
@@ -343,6 +387,9 @@ export function playSound(type: SoundType = 'click'): void {
       break
     case 'hover':
       playHover(ctx)
+      break
+    case 'tick':
+      playTick(ctx)
       break
   }
 }
