@@ -71,7 +71,7 @@ function RollingPercentage({ value }: { value: number }) {
               damping: 20,
             }}
           >
-            <RollingDigit digit={digit} playSound={index === digits.length - 1} />
+            <RollingDigit digit={digit} playSound={true} />
           </motion.div>
         ))}
       </AnimatePresence>
