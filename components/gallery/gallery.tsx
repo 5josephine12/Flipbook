@@ -88,7 +88,7 @@ function GifCard({
         whileHover={{ scale: 1.025 }}
         whileTap={{ scale: 0.98 }}
         transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
-        onClick={onSelect}
+        onClick={() => { playSoundIfEnabled('click'); onSelect() }}
         style={{
           boxShadow: isHovered 
             ? '0 20px 40px -12px rgba(0,0,0,0.2)' 
@@ -192,7 +192,7 @@ function DefaultGifCard({
         whileHover={{ scale: 1.025 }}
         whileTap={{ scale: 0.98 }}
         transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
-        onClick={onSelect}
+        onClick={() => { playSoundIfEnabled('click'); onSelect() }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

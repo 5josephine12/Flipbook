@@ -294,8 +294,8 @@ function playTick(ctx: AudioContext): void {
   osc.frequency.exponentialRampToValueAtTime(basePitch * 0.85, now + 0.006)
   
   const gainNode = ctx.createGain()
-  gainNode.gain.setValueAtTime(0.0015, now)
-  gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.006)
+  gainNode.gain.setValueAtTime(0.0006, now)
+  gainNode.gain.exponentialRampToValueAtTime(0.00005, now + 0.006)
   
   osc.connect(gainNode)
   gainNode.connect(ctx.destination)
