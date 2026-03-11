@@ -216,8 +216,6 @@ export function useFlipbook({ frames, mode, onFrameChange }: UseFlipbookOptions)
     
     playbackIntervalRef.current = setTimeout(() => {
       const nextFrame = (state.currentFrame + 1) % frameCount
-      // During playback, always use normal velocity (1.0) for fast animations
-      setScrollVelocity(1.0)
       // Play page flip sound during playback
       playSoundIfEnabled('pageFlip')
       setState(prev => ({
