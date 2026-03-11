@@ -125,18 +125,7 @@ export async function getAllHighlights(): Promise<Array<{
 }
 
 export async function deleteHighlight(id: string): Promise<void> {
-  console.log('[v0] deleteHighlight: Deleting id', id)
-  console.log('[v0] deleteHighlight: Full key', `${HIGHLIGHTS_PREFIX}${id}`)
-  
-  // Verify key exists before delete
-  const keysBefore = await keys()
-  console.log('[v0] deleteHighlight: Keys before delete', keysBefore)
-  
   await del(`${HIGHLIGHTS_PREFIX}${id}`)
-  
-  // Verify key was deleted
-  const keysAfter = await keys()
-  console.log('[v0] deleteHighlight: Keys after delete', keysAfter)
 }
 
 export async function updateHighlight(
