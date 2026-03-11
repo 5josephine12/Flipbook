@@ -424,7 +424,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                   {/* Animation mode slider */}
                   <div 
                     className={cn(
-                      "flex items-center gap-0.5 p-1 rounded-lg sm:rounded-xl",
+                      "flex items-center gap-0.5 p-1 rounded-[0.6em]",
                       "bg-[var(--recess)]",
                       "shadow-[inset_0_2px_4px_-1px_rgba(0,0,0,0.1),inset_0_1px_2px_-1px_rgba(0,0,0,0.06)]",
                       "dark:shadow-[inset_0_2px_4px_-1px_rgba(0,0,0,0.3),inset_0_1px_2px_-1px_rgba(0,0,0,0.2)]"
@@ -435,7 +435,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                         <button
                           onClick={() => { haptic('selection'); setAnimationMode('classic') }}
                           className={cn(
-                            "relative flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-md sm:rounded-lg",
+                            "relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-[0.5em]",
                             "transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
                             animationMode === 'classic'
                               ? cn(
@@ -450,13 +450,13 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                         >
                           <span
                             className={cn(
-                              "absolute top-1 right-1 w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300",
+                              "absolute top-1 right-1 w-1.5 h-1.5 rounded-full transition-all duration-300",
                               animationMode === 'classic'
                                 ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
                                 : "bg-[var(--led-inactive)]"
                             )}
                           />
-                          <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          <Layers className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>Classic flip</TooltipContent>
@@ -467,7 +467,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                         <button
                           onClick={() => { haptic('selection'); setAnimationMode('waterfall') }}
                           className={cn(
-                            "relative flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-md sm:rounded-lg",
+                            "relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-[0.5em]",
                             "transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
                             animationMode === 'waterfall'
                               ? cn(
@@ -482,13 +482,13 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                         >
                           <span
                             className={cn(
-                              "absolute top-1 right-1 w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300",
+                              "absolute top-1 right-1 w-1.5 h-1.5 rounded-full transition-all duration-300",
                               animationMode === 'waterfall'
                                 ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
                                 : "bg-[var(--led-inactive)]"
                             )}
                           />
-                          <Wind className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          <Wind className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>Waterfall</TooltipContent>
@@ -499,7 +499,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                         <button
                           onClick={() => { haptic('selection'); setAnimationMode('slide') }}
                           className={cn(
-                            "relative flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-md sm:rounded-lg",
+                            "relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-[0.5em]",
                             "transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
                             animationMode === 'slide'
                               ? cn(
@@ -514,13 +514,13 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                         >
                           <span
                             className={cn(
-                              "absolute top-1 right-1 w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300",
+                              "absolute top-1 right-1 w-1.5 h-1.5 rounded-full transition-all duration-300",
                               animationMode === 'slide'
                                 ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
                                 : "bg-[var(--led-inactive)]"
                             )}
                           />
-                          <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          <CreditCard className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>Slide</TooltipContent>
