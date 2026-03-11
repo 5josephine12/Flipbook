@@ -52,7 +52,7 @@ export function Flipbook({
       case 'waterfall':
         return { maxFrames: WATERFALL_VISIBLE_COUNT, cleanupTime: 800 }
       case 'slide':
-        return { maxFrames: 1, cleanupTime: 800 }
+        return { maxFrames: 1, cleanupTime: 750 }
       default:
         return { maxFrames: 2, cleanupTime: 450 }
     }
@@ -94,7 +94,7 @@ export function Flipbook({
             setFlyingFrames(prev => prev.map(f => 
               f.id === flyingId ? { ...f, phase: 'back' as const } : f
             ))
-          }, 315) // 45% of 0.7s = apex of the arc, when z goes negative
+          }, 290) // 45% of 0.65s = apex of the arc, when it starts coming back
         }
         
         setTimeout(() => {
@@ -189,38 +189,32 @@ export function Flipbook({
     }
   }
   
-  // Slide animation - real 3D card shuffle
-  // Card lifts up, tilts forward, arcs to the side while rotating, then sweeps behind
+  // Slide animation - real card shuffle: continuous arc motion
+  // Card lifts up in front, arcs to the side, then sweeps around behind and settles
   const getSlideAnimation = (flying: typeof flyingFrames[0], index: number) => {
     const directionMultiplier = flying.direction === 'forward' ? -1 : 1
-    const sideDistance = 110 // how far to the side
-    const liftHeight = -50 // how high to lift (negative = up)
+    const sideDistance = 100 // how far to the side
+    const liftHeight = -40 // how high to lift (negative = up)
     
     return {
       initial: { 
         x: 0, 
         y: 0, 
-        z: 0,
-        rotateX: 0,
-        rotateY: 0,
-        rotateZ: 0,
         scale: 1, 
         opacity: 1
       },
       animate: {
-        // Keyframes: start -> lift+tilt -> apex (rotated) -> arc back (flip behind) -> settle
-        x: [0, sideDistance * 0.5 * directionMultiplier, sideDistance * directionMultiplier, sideDistance * 0.3 * directionMultiplier, 0],
-        y: [0, liftHeight * 0.8, liftHeight * 0.4, liftHeight * 0.1, 0],
-        z: [0, 30, 20, -10, 0], // move toward viewer, then behind
-        rotateX: [0, -12, -8, 5, 0], // tilt forward as lifting, then back as settling
-        rotateY: [0, 15 * directionMultiplier, 35 * directionMultiplier, 15 * directionMultiplier, 0], // rotate around Y axis as card arcs
-        rotateZ: [0, 3 * directionMultiplier, 5 * directionMultiplier, 2 * directionMultiplier, 0], // slight tilt
-        scale: [1, 1.04, 1.02, 0.99, 0.98],
+        // Keyframes: start -> lift+side -> far side (apex) -> arc back -> settle behind
+        x: [0, sideDistance * 0.6 * directionMultiplier, sideDistance * directionMultiplier, sideDistance * 0.4 * directionMultiplier, 0],
+        y: [0, liftHeight, liftHeight * 0.6, liftHeight * 0.2, 0],
+        scale: [1, 1.03, 1.02, 1, 0.99],
         opacity: 1,
         transition: {
-          duration: 0.7,
-          times: [0, 0.22, 0.45, 0.72, 1],
-          ease: [0.4, 0, 0.2, 1]
+          duration: 0.65,
+          times: [0, 0.25, 0.45, 0.7, 1],
+          ease: 'easeInOut',
+          x: { ease: [0.4, 0, 0.2, 1] },
+          y: { ease: [0.4, 0, 0.2, 1] }
         }
       }
     }
