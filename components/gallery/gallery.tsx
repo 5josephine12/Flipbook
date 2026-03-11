@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Trash2, FolderOpen, Download } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { playSoundIfEnabled } from '@/lib/sounds'
 import { getAllHighlights, deleteHighlight, DEFAULT_GALLERY_GIFS } from '@/lib/highlights-store'
 import { HardwareButton3D } from '@/components/hardware-shell'
 import { LoadingScreen } from '@/components/viewer/loading-screen'
@@ -79,7 +80,7 @@ function GifCard({
         ease: [0.32, 0.72, 0, 1]
       }}
       className="group relative break-inside-avoid"
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => { setIsHovered(true); playSoundIfEnabled('hover') }}
       onMouseLeave={() => setIsHovered(false)}
     >
       <motion.div 
@@ -183,7 +184,7 @@ function DefaultGifCard({
         ease: [0.32, 0.72, 0, 1]
       }}
       className="group relative break-inside-avoid"
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => { setIsHovered(true); playSoundIfEnabled('hover') }}
       onMouseLeave={() => setIsHovered(false)}
     >
       <motion.div 
@@ -241,11 +242,9 @@ export function Gallery({ onSelect, className, refreshTrigger }: GalleryProps) {
   
   // Load gallery items
   const loadItems = useCallback(async () => {
-    console.log('[v0] Gallery loadItems: Starting load')
     setIsLoading(true)
     try {
       const data = await getAllHighlights()
-      console.log('[v0] Gallery loadItems: Loaded items', data.length, data)
       setItems(data)
     } catch (error) {
       console.error('[v0] Failed to load gallery:', error)
@@ -268,9 +267,11 @@ export function Gallery({ onSelect, className, refreshTrigger }: GalleryProps) {
     try {
       await deleteHighlight(deleteConfirm.id)
       setItems(prev => prev.filter(h => h.id !== deleteConfirm.id))
+      playSoundIfEnabled('toggle')
       toast.success('Removed from gallery')
       setDeleteConfirm(null)
     } catch {
+      playSoundIfEnabled('click')
       toast.error('Failed to delete')
     }
   }, [deleteConfirm])
@@ -300,9 +301,11 @@ export function Gallery({ onSelect, className, refreshTrigger }: GalleryProps) {
       document.body.removeChild(a)
       URL.revokeObjectURL(downloadUrl)
       
+      playSoundIfEnabled('toggle')
       toast.success('Downloaded GIF')
     } catch (error) {
       console.error('Download failed:', error)
+      playSoundIfEnabled('click')
       toast.error('Failed to download')
     }
   }, [])
@@ -315,6 +318,7 @@ export function Gallery({ onSelect, className, refreshTrigger }: GalleryProps) {
       // For now, download as animated WebP or first frame PNG
       const frames = item.frames
       if (frames.length === 0) {
+        playSoundIfEnabled('click')
         toast.error('No frames to download')
         return
       }
@@ -335,6 +339,7 @@ export function Gallery({ onSelect, className, refreshTrigger }: GalleryProps) {
       
       canvas.toBlob((blob) => {
         if (!blob) {
+          playSoundIfEnabled('click')
           toast.error('Failed to create download')
           return
         }
@@ -348,10 +353,12 @@ export function Gallery({ onSelect, className, refreshTrigger }: GalleryProps) {
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
         
+        playSoundIfEnabled('toggle')
         toast.success('Downloaded first frame')
       }, 'image/png')
     } catch (error) {
       console.error('Download failed:', error)
+      playSoundIfEnabled('click')
       toast.error('Failed to download')
     }
   }, [])

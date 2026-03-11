@@ -12,6 +12,7 @@ import { Gallery } from '@/components/gallery'
 import { HardwareButton3D } from '@/components/hardware-shell'
 import { getHighlight } from '@/lib/highlights-store'
 import { haptic } from '@/lib/haptics'
+import { playSoundIfEnabled } from '@/lib/sounds'
 import type { GifData } from '@/lib/gif-types'
 import {
   Tooltip,
@@ -71,9 +72,9 @@ export default function Home() {
         )}
       >
         <div className="absolute inset-0 overflow-hidden">
-          {/* Loading screen overlay - shown during GIF decoding */}
+          {/* Loading screen overlay - shown during GIF decoding, only on viewer tab */}
           <AnimatePresence>
-            {viewerState.isLoading && (
+            {activeTab === 'viewer' && viewerState.isLoading && (
               <motion.div
                 key="loading"
                 initial={{ opacity: 0, scale: 1.02 }}
@@ -165,61 +166,77 @@ export default function Home() {
               )}
             >
               <button
-                onClick={() => { haptic('selection'); setActiveTab('viewer') }}
+                onClick={() => { haptic('selection'); playSoundIfEnabled('slide'); setActiveTab('viewer') }}
                 className={cn(
                   "relative flex items-center gap-[0.375em] sm:gap-[0.5em] px-[0.75em] sm:px-[1em] py-[0.5em] rounded-[0.25em] sm:rounded-[0.375em] text-[1em] font-medium",
-                  "transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
+                  "transition-colors duration-200",
                   activeTab === 'viewer' 
-                    ? cn(
-                        "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
-                        "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
-                        "dark:from-[var(--module)] dark:to-[var(--card)]",
-                        "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]",
-                        "text-[var(--foreground)]"
-                      )
+                    ? "text-[var(--foreground)]"
                     : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 )}
               >
+                {/* Sliding background */}
+                {activeTab === 'viewer' && (
+                  <motion.div
+                    layoutId="nav-slider"
+                    className={cn(
+                      "absolute inset-0 rounded-[0.25em] sm:rounded-[0.375em]",
+                      "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
+                      "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
+                      "dark:from-[var(--module)] dark:to-[var(--card)]",
+                      "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]"
+                    )}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
                 {/* LED indicator */}
                 <span 
                   className={cn(
-                    "absolute top-[0.25em] right-[0.25em] w-[0.375em] h-[0.375em] rounded-full transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)]",
+                    "absolute top-[0.25em] right-[0.25em] w-[0.375em] h-[0.375em] rounded-full transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)] z-10",
                     activeTab === 'viewer' 
                       ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]" 
                       : "bg-[var(--led-inactive)]"
                   )}
                 />
-                <BookOpen className="w-[1em] h-[1em]" />
-                <span className="hidden xs:inline">Flipbook</span>
+                <BookOpen className="w-[1em] h-[1em] relative z-10" />
+                <span className="hidden xs:inline relative z-10">Flipbook</span>
               </button>
               
               <button
-                onClick={() => { haptic('selection'); setActiveTab('gallery') }}
+                onClick={() => { haptic('selection'); playSoundIfEnabled('slide'); setActiveTab('gallery') }}
                 className={cn(
                   "relative flex items-center gap-[0.375em] sm:gap-[0.5em] px-[0.75em] sm:px-[1em] py-[0.5em] rounded-[0.25em] sm:rounded-[0.375em] text-[1em] font-medium",
-                  "transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
+                  "transition-colors duration-200",
                   activeTab === 'gallery' 
-                    ? cn(
-                        "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
-                        "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
-                        "dark:from-[var(--module)] dark:to-[var(--card)]",
-                        "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]",
-                        "text-[var(--foreground)]"
-                      )
+                    ? "text-[var(--foreground)]"
                     : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 )}
               >
+                {/* Sliding background */}
+                {activeTab === 'gallery' && (
+                  <motion.div
+                    layoutId="nav-slider"
+                    className={cn(
+                      "absolute inset-0 rounded-[0.25em] sm:rounded-[0.375em]",
+                      "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
+                      "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
+                      "dark:from-[var(--module)] dark:to-[var(--card)]",
+                      "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]"
+                    )}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
                 {/* LED indicator */}
                 <span 
                   className={cn(
-                    "absolute top-[0.25em] right-[0.25em] w-[0.375em] h-[0.375em] rounded-full transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)]",
+                    "absolute top-[0.25em] right-[0.25em] w-[0.375em] h-[0.375em] rounded-full transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)] z-10",
                     activeTab === 'gallery' 
                       ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]" 
                       : "bg-[var(--led-inactive)]"
                   )}
                 />
-                <Grid3X3 className="w-[1em] h-[1em]" />
-                <span className="hidden xs:inline">Gallery</span>
+                <Grid3X3 className="w-[1em] h-[1em] relative z-10" />
+                <span className="hidden xs:inline relative z-10">Gallery</span>
               </button>
             </div>
           </div>
@@ -330,7 +347,7 @@ export default function Home() {
                 "shadow-[0_1px_0_0_rgba(255,255,255,0.4)_inset,0_-1px_2px_0_rgba(0,0,0,0.05)_inset,0_12px_32px_-8px_rgba(0,0,0,0.25),0_4px_8px_-4px_rgba(0,0,0,0.15)]",
                 "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.05)_inset,0_-1px_2px_0_rgba(0,0,0,0.2)_inset,0_12px_32px_-8px_rgba(0,0,0,0.6),0_4px_8px_-4px_rgba(0,0,0,0.4)]",
                 // Scale down on very small screens
-                "max-h-[90vh] overflow-y-auto"
+                "max-h-[90vh]"
               )}
               style={{
                 fontSize: 'clamp(10px, 2.5vw, 16px)'
@@ -348,42 +365,37 @@ export default function Home() {
                 )}
               >
                 {/* Close button */}
-                <button
+                <HardwareButton3D
+                  variant="default"
+                  size="icon"
+                  hapticType="medium"
                   onClick={() => setShowAbout(false)}
-                  className={cn(
-                    "absolute top-2 right-2 sm:top-3 sm:right-3 md:top-4 md:right-4 p-1 sm:p-1.5 rounded-md",
-                    "text-muted-foreground/60 hover:text-muted-foreground",
-                    "transition-colors duration-150"
-                  )}
+                  className="absolute top-2 right-2 sm:top-3 sm:right-3 md:top-4 md:right-4 z-10"
                 >
-                  <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </button>
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                </HardwareButton3D>
                 
                 {/* Manifesto content - uses em units to scale with container font-size */}
-                <div className="space-y-[1.2em] sm:space-y-[1.4em] md:space-y-[1.6em] text-[1em] sm:text-[0.95em] md:text-[0.9375em] leading-relaxed text-muted-foreground">
+                <div className="space-y-[1em] sm:space-y-[1.2em] md:space-y-[1.4em] text-[1em] sm:text-[0.95em] md:text-[0.9375em] leading-relaxed text-muted-foreground">
                   <h2 className="text-[1.4em] sm:text-[1.6em] md:text-[1.875em] font-normal text-foreground tracking-tight pr-6">
                     Digital Flipbook
                   </h2>
                   
-                  <div className="space-y-[0.9em] sm:space-y-[1em] md:space-y-[1.2em]">
+                  <div className="space-y-[0.75em] sm:space-y-[0.85em] md:space-y-[1em]">
                     <p>
-                      I built this because I wanted to slow down and appreciate GIFs the way they deserve. Frame by frame, like flipping through a physical flipbook. There is something magical about having control over the animation.
+                      I built this because I wanted to slow down and appreciate GIFs the way they deserve. Frame by frame, like flipping through a physical flipbook. There is something magical about having control over the animation. I crave the tactility of physical forms of art and products that you rarely find in software—you can see this bleed through the microanimations, UI rendering, and texture throughout this project.
                     </p>
                     
                     <p>
-                      What works best: GIFs with smooth motion, hand-drawn animations, stop-motion, or anything with satisfying frame-to-frame progression. Cinemagraphs and subtle loops are particularly beautiful here.
+                      What works best: GIFs with smooth motion, hand-drawn animations, stop-motion, or anything with satisfying frame-to-frame progression. Zoom-in sequences and subtle loops are particularly beautiful here.
                     </p>
                     
                     <p>
-                      Simply scroll away or drag the scrubber to flip through frames. Try the filmstrip to jump to specific moments. Save your favorites to build a collection.
-                    </p>
-                    
-                    <p>
-                      This is an invitation to play around.
+                      Scroll or drag the scrubber to flip through frames. Try the filmstrip to jump to specific moments. Save your favorites to build a collection. This is an invitation to play around.
                     </p>
                   </div>
                   
-                  <div className="pt-[0.8em] sm:pt-[1em] md:pt-[1.2em] border-t border-[var(--border)]/50 space-y-[0.3em] sm:space-y-[0.4em]">
+                  <div className="pt-[0.6em] sm:pt-[0.8em] md:pt-[1em] border-t border-[var(--border)]/50 space-y-[0.2em] sm:space-y-[0.3em]">
                     <p>
                       Built by{' '}
                       <a 

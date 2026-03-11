@@ -3,25 +3,31 @@
 import { forwardRef, useState, useCallback, useRef } from 'react'
 import { cn } from '@/lib/utils'
 import { haptic } from '@/lib/haptics'
+import { playSoundIfEnabled, type SoundType } from '@/lib/sounds'
 
 interface HardwareButton3DProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'default' | 'ghost' | 'primary' | 'destructive'
   size?: 'sm' | 'md' | 'lg' | 'icon'
   hapticType?: 'light' | 'medium' | 'heavy' | 'selection'
+  soundType?: SoundType | 'none'
 }
 
 export const HardwareButton3D = forwardRef<HTMLButtonElement, HardwareButton3DProps>(
-  ({ className, variant = 'default', size = 'md', hapticType = 'light', onClick, children, ...props }, ref) => {
+  ({ className, variant = 'default', size = 'md', hapticType = 'light', soundType = 'click', onClick, children, ...props }, ref) => {
     const [isPressed, setIsPressed] = useState(false)
     const [isHovered, setIsHovered] = useState(false)
     const clickTimeoutRef = useRef<NodeJS.Timeout>()
     
     const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
       haptic(hapticType)
+      // Play sound effect
+      if (soundType !== 'none') {
+        playSoundIfEnabled(soundType)
+      }
       // Brief scale pulse on click
       if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current)
       onClick?.(e)
-    }, [hapticType, onClick])
+    }, [hapticType, soundType, onClick])
     
     const sizeClasses = {
       sm: 'h-[1.75em] px-[0.625em] text-[0.75em]',
@@ -109,7 +115,7 @@ export const HardwareButton3D = forwardRef<HTMLButtonElement, HardwareButton3DPr
         onClick={handleClick}
         onMouseDown={() => setIsPressed(true)}
         onMouseUp={() => setIsPressed(false)}
-        onMouseEnter={() => setIsHovered(true)}
+        onMouseEnter={() => { setIsHovered(true); playSoundIfEnabled('hover') }}
         onMouseLeave={() => { setIsPressed(false); setIsHovered(false) }}
         {...props}
       >

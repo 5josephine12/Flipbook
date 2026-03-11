@@ -10,8 +10,9 @@ import { useFlipbook } from '@/hooks/use-flipbook'
 import { Flipbook } from '@/components/flipbook'
 import { DropZone } from './drop-zone'
 import { Filmstrip } from './filmstrip'
-import { saveHighlight } from '@/lib/highlights-store'
+import { saveHighlight, deleteHighlight } from '@/lib/highlights-store'
 import { haptic, hapticThrottled } from '@/lib/haptics'
+import { playSoundIfEnabled } from '@/lib/sounds'
 import { HardwareButton3D } from '@/components/hardware-shell'
 import { KeyboardHint, ScrollHint, EscHint, Divider } from '@/components/ui/keyboard-hint'
 import {
@@ -163,19 +164,31 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
     if (!metadata || frames.length === 0) return
     
     try {
-      await saveHighlight(metadata, frames)
+      const savedId = await saveHighlight(metadata, frames)
       setIsSaved(true)
       haptic('success')
+      playSoundIfEnabled('toggle')
       toast.success('Saved to Gallery', {
         action: {
           label: 'Undo',
-          onClick: () => {
-            toast.info('Undo not implemented yet')
+          onClick: async () => {
+            try {
+              await deleteHighlight(savedId)
+              setIsSaved(false)
+              haptic('light')
+              playSoundIfEnabled('toggle')
+              toast.success('Removed from Gallery')
+              onGallerySaved?.()
+            } catch {
+              playSoundIfEnabled('click')
+              toast.error('Failed to undo')
+            }
           }
         }
       })
       onGallerySaved?.()
     } catch {
+      playSoundIfEnabled('click')
       toast.error('Failed to save')
     }
   }, [metadata, frames, onGallerySaved])
@@ -214,18 +227,28 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
     flipbook.goToFrame(targetFrame, false)
   }, [frames.length, flipbook])
   
+  // Track previous frame for scrubber sound
+  const prevScrubFrameRef = useRef<number>(-1)
+  
   const handleScrubberPointerDown = useCallback((e: React.PointerEvent) => {
     setIsDraggingScrubber(true)
     haptic('light')
+    playSoundIfEnabled('scrub')
+    prevScrubFrameRef.current = flipbook.currentFrame
     e.currentTarget.setPointerCapture(e.pointerId)
     handleScrubberInteraction(e.clientX)
-  }, [handleScrubberInteraction])
+  }, [handleScrubberInteraction, flipbook.currentFrame])
   
   const handleScrubberPointerMove = useCallback((e: React.PointerEvent) => {
     if (!isDraggingScrubber) return
     hapticThrottled('tick')
+    // Only play scrub sound when frame changes
+    if (flipbook.currentFrame !== prevScrubFrameRef.current) {
+      playSoundIfEnabled('scrub')
+      prevScrubFrameRef.current = flipbook.currentFrame
+    }
     handleScrubberInteraction(e.clientX)
-  }, [isDraggingScrubber, handleScrubberInteraction])
+  }, [isDraggingScrubber, handleScrubberInteraction, flipbook.currentFrame])
   
   const handleScrubberPointerUp = useCallback(() => {
     setIsDraggingScrubber(false)
@@ -353,7 +376,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
               transition={{ duration: 0.2 }}
               className="flex-shrink-0 px-4 py-2 pb-4"
             >
-              <div className="max-w-3xl mx-auto space-y-2">
+              <div className="max-w-3xl mx-auto space-y-3">
                 {/* Filmstrip with proximity effects */}
                 <Filmstrip
                   frames={frames}
@@ -420,108 +443,219 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                 </div>
                 
                 {/* Playback controls */}
-                <div className="flex items-center justify-center gap-1.5">
-                  {/* Animation mode toggle */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HardwareButton3D 
-                        variant="ghost" 
-                        size="icon"
-                        hapticType="medium"
-                        onClick={() => setAnimationMode(prev => {
-                          const modes: AnimationMode[] = ['classic', 'waterfall', 'slide']
-                          const currentIndex = modes.indexOf(prev)
-                          return modes[(currentIndex + 1) % modes.length]
-                        })}
-                        className={cn(animationMode !== 'classic' && "bg-primary/10")}
-                      >
-                        {animationMode === 'classic' && <Layers className="w-4 h-4" />}
-                        {animationMode === 'waterfall' && <Wind className="w-4 h-4" />}
-                        {animationMode === 'slide' && <CreditCard className="w-4 h-4" />}
-                      </HardwareButton3D>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {animationMode === 'classic' && 'Classic flip'}
-                      {animationMode === 'waterfall' && 'Waterfall'}
-                      {animationMode === 'slide' && 'Slide'}
-                    </TooltipContent>
-                  </Tooltip>
+                <div className="flex items-center justify-between sm:justify-center w-full sm:gap-4">
+                  {/* Animation mode slider */}
+                  <div 
+                    className={cn(
+                      "flex items-center gap-0.5 p-1 rounded-[0.6em] flex-shrink-0",
+                      "bg-[var(--recess)]",
+                      "shadow-[inset_0_2px_4px_-1px_rgba(0,0,0,0.1),inset_0_1px_2px_-1px_rgba(0,0,0,0.06)]",
+                      "dark:shadow-[inset_0_2px_4px_-1px_rgba(0,0,0,0.3),inset_0_1px_2px_-1px_rgba(0,0,0,0.2)]"
+                    )}
+                  >
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => { haptic('selection'); playSoundIfEnabled('slide'); setAnimationMode('classic') }}
+                          className={cn(
+                            "relative flex items-center justify-center w-7 h-7 sm:w-10 sm:h-10 flex-shrink-0 aspect-square rounded-[0.5em]",
+                            "transition-colors duration-200",
+                            animationMode === 'classic'
+                              ? "text-[var(--foreground)]"
+                              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                          )}
+                        >
+                          {/* Sliding background */}
+                          {animationMode === 'classic' && (
+                            <motion.div
+                              layoutId="animation-mode-slider"
+                              className={cn(
+                                "absolute inset-0 rounded-[0.5em]",
+                                "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
+                                "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
+                                "dark:from-[var(--module)] dark:to-[var(--card)]",
+                                "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]"
+                              )}
+                              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                            />
+                          )}
+                          <span
+                            className={cn(
+                              "absolute top-1 right-1 w-1.5 h-1.5 rounded-full transition-all duration-300 z-10",
+                              animationMode === 'classic'
+                                ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
+                                : "bg-[var(--led-inactive)]"
+                            )}
+                          />
+                          <Layers className="w-4 h-4 sm:w-[18px] sm:h-[18px] relative z-10" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Classic flip</TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => { haptic('selection'); playSoundIfEnabled('slide'); setAnimationMode('waterfall') }}
+                          className={cn(
+                            "relative flex items-center justify-center w-7 h-7 sm:w-10 sm:h-10 flex-shrink-0 aspect-square rounded-[0.5em]",
+                            "transition-colors duration-200",
+                            animationMode === 'waterfall'
+                              ? "text-[var(--foreground)]"
+                              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                          )}
+                        >
+                          {/* Sliding background */}
+                          {animationMode === 'waterfall' && (
+                            <motion.div
+                              layoutId="animation-mode-slider"
+                              className={cn(
+                                "absolute inset-0 rounded-[0.5em]",
+                                "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
+                                "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
+                                "dark:from-[var(--module)] dark:to-[var(--card)]",
+                                "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]"
+                              )}
+                              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                            />
+                          )}
+                          <span
+                            className={cn(
+                              "absolute top-1 right-1 w-1.5 h-1.5 rounded-full transition-all duration-300 z-10",
+                              animationMode === 'waterfall'
+                                ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
+                                : "bg-[var(--led-inactive)]"
+                            )}
+                          />
+                          <Wind className="w-4 h-4 sm:w-[18px] sm:h-[18px] relative z-10" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Waterfall</TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => { haptic('selection'); playSoundIfEnabled('slide'); setAnimationMode('slide') }}
+                          className={cn(
+                            "relative flex items-center justify-center w-7 h-7 sm:w-10 sm:h-10 flex-shrink-0 aspect-square rounded-[0.5em]",
+                            "transition-colors duration-200",
+                            animationMode === 'slide'
+                              ? "text-[var(--foreground)]"
+                              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                          )}
+                        >
+                          {/* Sliding background */}
+                          {animationMode === 'slide' && (
+                            <motion.div
+                              layoutId="animation-mode-slider"
+                              className={cn(
+                                "absolute inset-0 rounded-[0.5em]",
+                                "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
+                                "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
+                                "dark:from-[var(--module)] dark:to-[var(--card)]",
+                                "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]"
+                              )}
+                              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                            />
+                          )}
+                          <span
+                            className={cn(
+                              "absolute top-1 right-1 w-1.5 h-1.5 rounded-full transition-all duration-300 z-10",
+                              animationMode === 'slide'
+                                ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
+                                : "bg-[var(--led-inactive)]"
+                            )}
+                          />
+                          <CreditCard className="w-4 h-4 sm:w-[18px] sm:h-[18px] relative z-10" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Slide</TooltipContent>
+                    </Tooltip>
+                  </div>
                   
-                  <div className="w-px h-6 bg-border mx-1" />
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HardwareButton3D 
-                        variant="ghost" 
-                        size="icon"
-                        hapticType="medium"
-                        onClick={() => flipbook.firstFrame()}
-                      >
-                        <ChevronFirst className="w-4 h-4" />
-                      </HardwareButton3D>
-                    </TooltipTrigger>
-                    <TooltipContent>First frame</TooltipContent>
-                  </Tooltip>
-                  
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HardwareButton3D 
-                        variant="ghost" 
-                        size="icon"
-                        hapticType="light"
-                        onClick={() => flipbook.prevFrame()}
-                      >
-                        <SkipBack className="w-4 h-4" />
-                      </HardwareButton3D>
-                    </TooltipTrigger>
-                    <TooltipContent>Previous frame</TooltipContent>
-                  </Tooltip>
-                  
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HardwareButton3D 
-                        variant="default" 
-                        size="icon" 
-                        className="h-11 w-11"
-                        hapticType="medium"
-                        onClick={() => flipbook.setIsPlaying(!flipbook.isPlaying)}
-                      >
-                        {flipbook.isPlaying ? (
-                          <Pause className="w-5 h-5" />
-                        ) : (
-                          <Play className="w-5 h-5 ml-0.5" />
-                        )}
-                      </HardwareButton3D>
-                    </TooltipTrigger>
-                    <TooltipContent>{flipbook.isPlaying ? 'Pause' : 'Play'}</TooltipContent>
-                  </Tooltip>
-                  
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HardwareButton3D 
-                        variant="ghost" 
-                        size="icon"
-                        hapticType="light"
-                        onClick={() => flipbook.nextFrame()}
-                      >
-                        <SkipForward className="w-4 h-4" />
-                      </HardwareButton3D>
-                    </TooltipTrigger>
-                    <TooltipContent>Next frame</TooltipContent>
-                  </Tooltip>
-                  
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HardwareButton3D 
-                        variant="ghost" 
-                        size="icon"
-                        hapticType="medium"
-                        onClick={() => flipbook.lastFrame()}
-                      >
-                        <ChevronLast className="w-4 h-4" />
-                      </HardwareButton3D>
-                    </TooltipTrigger>
-                    <TooltipContent>Last frame</TooltipContent>
-                  </Tooltip>
+                  {/* Navigation and playback buttons */}
+                  <div className="flex items-center gap-0.5 sm:gap-1.5">
+                    <div className="w-px h-5 sm:h-6 bg-border mx-2 sm:mx-3 flex-shrink-0" />
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HardwareButton3D 
+                          variant="ghost" 
+                          size="icon"
+                          className="h-7 w-7 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
+                          hapticType="medium"
+                          onClick={() => flipbook.firstFrame()}
+                        >
+                          <ChevronFirst className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </HardwareButton3D>
+                      </TooltipTrigger>
+                      <TooltipContent>First frame</TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HardwareButton3D 
+                          variant="ghost" 
+                          size="icon"
+                          className="h-7 w-7 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
+                          hapticType="light"
+                          onClick={() => flipbook.prevFrame()}
+                        >
+                          <SkipBack className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </HardwareButton3D>
+                      </TooltipTrigger>
+                      <TooltipContent>Previous frame</TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HardwareButton3D 
+                          variant="default" 
+                          size="icon" 
+                          className="h-7 w-7 sm:h-11 sm:w-11 flex-shrink-0 aspect-square"
+                          hapticType="medium"
+                          onClick={() => flipbook.setIsPlaying(!flipbook.isPlaying)}
+                        >
+                          {flipbook.isPlaying ? (
+                            <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
+                          ) : (
+                            <Play className="w-4 h-4 sm:w-5 sm:h-5 ml-0.5" />
+                          )}
+                        </HardwareButton3D>
+                      </TooltipTrigger>
+                      <TooltipContent>{flipbook.isPlaying ? 'Pause' : 'Play'}</TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HardwareButton3D 
+                          variant="ghost" 
+                          size="icon"
+                          className="h-7 w-7 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
+                          hapticType="light"
+                          onClick={() => flipbook.nextFrame()}
+                        >
+                          <SkipForward className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </HardwareButton3D>
+                      </TooltipTrigger>
+                      <TooltipContent>Next frame</TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HardwareButton3D 
+                          variant="ghost" 
+                          size="icon"
+                          className="h-7 w-7 sm:h-9 sm:w-9 flex-shrink-0 aspect-square"
+                          hapticType="medium"
+                          onClick={() => flipbook.lastFrame()}
+                        >
+                          <ChevronLast className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </HardwareButton3D>
+                      </TooltipTrigger>
+                      <TooltipContent>Last frame</TooltipContent>
+                    </Tooltip>
+                  </div>
                 </div>
               </div>
             </motion.div>

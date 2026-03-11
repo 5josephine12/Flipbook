@@ -1,7 +1,9 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
+import { playSoundIfEnabled } from '@/lib/sounds'
 
 interface LoadingScreenProps {
   progress: number
@@ -12,8 +14,16 @@ interface LoadingScreenProps {
 const EYE_LOADING_GIF = "/images/eyeloading.gif"
 
 // Individual rolling digit component with smooth spring animation
-function RollingDigit({ digit, className }: { digit: string; className?: string }) {
+function RollingDigit({ digit, className, playSound = false }: { digit: string; className?: string; playSound?: boolean }) {
   const numericDigit = digit === '%' ? 10 : parseInt(digit, 10)
+  const prevDigitRef = useRef(numericDigit)
+  
+  useEffect(() => {
+    if (playSound && prevDigitRef.current !== numericDigit) {
+      playSoundIfEnabled('tick')
+      prevDigitRef.current = numericDigit
+    }
+  }, [numericDigit, playSound])
   
   return (
     <div className={cn("relative h-[1.2em] w-[0.65em] overflow-hidden", className)}>
@@ -23,9 +33,9 @@ function RollingDigit({ digit, className }: { digit: string; className?: string 
         animate={{ y: `${-numericDigit * 1.2}em` }}
         transition={{
           type: "spring",
-          stiffness: 300,
-          damping: 30,
-          mass: 0.6,
+          stiffness: 180,
+          damping: 22,
+          mass: 0.8,
         }}
       >
         {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, '%'].map((num) => (
@@ -52,12 +62,16 @@ function RollingPercentage({ value }: { value: number }) {
         {digits.map((digit, index) => (
           <motion.div
             key={`${index}-${digits.length}`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.15 }}
+            initial={{ opacity: 0, y: 8, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.9 }}
+            transition={{ 
+              type: "spring",
+              stiffness: 200,
+              damping: 20,
+            }}
           >
-            <RollingDigit digit={digit} />
+            <RollingDigit digit={digit} playSound={true} />
           </motion.div>
         ))}
       </AnimatePresence>
