@@ -436,27 +436,35 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                           onClick={() => { haptic('selection'); setAnimationMode('classic') }}
                           className={cn(
                             "relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-[0.5em]",
-                            "transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
+                            "transition-colors duration-200",
                             animationMode === 'classic'
-                              ? cn(
-                                  "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
-                                  "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
-                                  "dark:from-[var(--module)] dark:to-[var(--card)]",
-                                  "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]",
-                                  "text-[var(--foreground)]"
-                                )
+                              ? "text-[var(--foreground)]"
                               : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                           )}
                         >
+                          {/* Sliding background */}
+                          {animationMode === 'classic' && (
+                            <motion.div
+                              layoutId="animation-mode-slider"
+                              className={cn(
+                                "absolute inset-0 rounded-[0.5em]",
+                                "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
+                                "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
+                                "dark:from-[var(--module)] dark:to-[var(--card)]",
+                                "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]"
+                              )}
+                              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                            />
+                          )}
                           <span
                             className={cn(
-                              "absolute top-1 right-1 w-1.5 h-1.5 rounded-full transition-all duration-300",
+                              "absolute top-1 right-1 w-1.5 h-1.5 rounded-full transition-all duration-300 z-10",
                               animationMode === 'classic'
                                 ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
                                 : "bg-[var(--led-inactive)]"
                             )}
                           />
-                          <Layers className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+                          <Layers className="w-4 h-4 sm:w-[18px] sm:h-[18px] relative z-10" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>Classic flip</TooltipContent>
@@ -468,27 +476,35 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                           onClick={() => { haptic('selection'); setAnimationMode('waterfall') }}
                           className={cn(
                             "relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-[0.5em]",
-                            "transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
+                            "transition-colors duration-200",
                             animationMode === 'waterfall'
-                              ? cn(
-                                  "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
-                                  "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
-                                  "dark:from-[var(--module)] dark:to-[var(--card)]",
-                                  "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]",
-                                  "text-[var(--foreground)]"
-                                )
+                              ? "text-[var(--foreground)]"
                               : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                           )}
                         >
+                          {/* Sliding background */}
+                          {animationMode === 'waterfall' && (
+                            <motion.div
+                              layoutId="animation-mode-slider"
+                              className={cn(
+                                "absolute inset-0 rounded-[0.5em]",
+                                "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
+                                "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
+                                "dark:from-[var(--module)] dark:to-[var(--card)]",
+                                "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]"
+                              )}
+                              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                            />
+                          )}
                           <span
                             className={cn(
-                              "absolute top-1 right-1 w-1.5 h-1.5 rounded-full transition-all duration-300",
+                              "absolute top-1 right-1 w-1.5 h-1.5 rounded-full transition-all duration-300 z-10",
                               animationMode === 'waterfall'
                                 ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
                                 : "bg-[var(--led-inactive)]"
                             )}
                           />
-                          <Wind className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+                          <Wind className="w-4 h-4 sm:w-[18px] sm:h-[18px] relative z-10" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>Waterfall</TooltipContent>
@@ -500,27 +516,35 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                           onClick={() => { haptic('selection'); setAnimationMode('slide') }}
                           className={cn(
                             "relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-[0.5em]",
-                            "transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
+                            "transition-colors duration-200",
                             animationMode === 'slide'
-                              ? cn(
-                                  "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
-                                  "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
-                                  "dark:from-[var(--module)] dark:to-[var(--card)]",
-                                  "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]",
-                                  "text-[var(--foreground)]"
-                                )
+                              ? "text-[var(--foreground)]"
                               : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                           )}
                         >
+                          {/* Sliding background */}
+                          {animationMode === 'slide' && (
+                            <motion.div
+                              layoutId="animation-mode-slider"
+                              className={cn(
+                                "absolute inset-0 rounded-[0.5em]",
+                                "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
+                                "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
+                                "dark:from-[var(--module)] dark:to-[var(--card)]",
+                                "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]"
+                              )}
+                              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                            />
+                          )}
                           <span
                             className={cn(
-                              "absolute top-1 right-1 w-1.5 h-1.5 rounded-full transition-all duration-300",
+                              "absolute top-1 right-1 w-1.5 h-1.5 rounded-full transition-all duration-300 z-10",
                               animationMode === 'slide'
                                 ? "bg-[var(--led-active)] shadow-[0_0_4px_1px_rgba(74,222,128,0.4)]"
                                 : "bg-[var(--led-inactive)]"
                             )}
                           />
-                          <CreditCard className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+                          <CreditCard className="w-4 h-4 sm:w-[18px] sm:h-[18px] relative z-10" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>Slide</TooltipContent>
