@@ -52,7 +52,7 @@ export function Flipbook({
       case 'waterfall':
         return { maxFrames: WATERFALL_VISIBLE_COUNT, cleanupTime: 800 }
       case 'slide':
-        return { maxFrames: 3, cleanupTime: 550 }
+        return { maxFrames: 1, cleanupTime: 700 }
       default:
         return { maxFrames: 2, cleanupTime: 450 }
     }
@@ -88,13 +88,13 @@ export function Flipbook({
         
         const flyingId = newFlying.id
         
-        // For slide animation: transition from front to back after slide reaches max
+        // For slide animation: transition from front to back after the arc out completes
         if (animationMode === 'slide') {
           setTimeout(() => {
             setFlyingFrames(prev => prev.map(f => 
               f.id === flyingId ? { ...f, phase: 'back' as const } : f
             ))
-          }, 275) // 55% of 0.5s animation = when it starts returning
+          }, 280) // after phase 1 duration (0.28s)
         }
         
         setTimeout(() => {
@@ -189,30 +189,49 @@ export function Flipbook({
     }
   }
   
-  // Slide animation - clean card dealing: lift, slide to side, settle behind
+  // Slide animation - real card shuffle: card lifts forward, arcs to the side, sweeps behind
   const getSlideAnimation = (flying: typeof flyingFrames[0], index: number) => {
     const directionMultiplier = flying.direction === 'forward' ? -1 : 1
-    const slideDistance = 55
-    const liftAmount = -20 // lift up (negative = up)
-    const settleAmount = 6 + index * 2 // settle behind stack
     
-    return {
-      initial: { 
-        x: 0, 
-        y: 0, 
-        scale: 1, 
-        opacity: 1
-      },
-      animate: {
-        // Clean keyframe animation: lift -> slide out -> return behind
-        x: [0, 0, slideDistance * directionMultiplier, 0],
-        y: [0, liftAmount, liftAmount * 0.3, settleAmount],
-        scale: [1, 1.01, 0.99, 0.97 - index * 0.01],
-        opacity: [1, 1, 1, Math.max(0, 0.6 - index * 0.2)],
-        transition: {
-          duration: 0.5,
-          times: [0, 0.15, 0.55, 1], // quick lift, hold slide, smooth return
-          ease: 'easeInOut'
+    // Phase-based animation: different targets for front vs back phase
+    if (flying.phase === 'front') {
+      // Phase 1: Lift up and arc out to the side (visible in front)
+      return {
+        initial: { 
+          x: 0, 
+          y: 0, 
+          scale: 1, 
+          opacity: 1
+        },
+        animate: {
+          x: 80 * directionMultiplier,
+          y: -35, // lift up
+          scale: 1.02, // slightly larger when lifted
+          opacity: 1,
+          transition: {
+            duration: 0.28,
+            ease: [0.32, 0, 0.67, 0] // ease-in for pickup feel
+          }
+        }
+      }
+    } else {
+      // Phase 2: Arc back and settle behind the deck
+      return {
+        initial: { 
+          x: 80 * directionMultiplier, 
+          y: -35, 
+          scale: 1.02, 
+          opacity: 1
+        },
+        animate: {
+          x: 0,
+          y: 4, // settle slightly below
+          scale: 0.98,
+          opacity: 0,
+          transition: {
+            duration: 0.38,
+            ease: [0.33, 1, 0.68, 1] // ease-out for settle feel
+          }
         }
       }
     }
