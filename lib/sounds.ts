@@ -282,48 +282,25 @@ function playSoft(ctx: AudioContext): void {
   noiseSource.start(now)
 }
 
-// Tick sound for counting numbers - like a mechanical counter
+// Tick sound for counting numbers - subtle, soft click
 function playTick(ctx: AudioContext): void {
   const now = ctx.currentTime
   
-  // Short tonal tick with pitch variation for counting feel
+  // Very soft, high-frequency tick
   const osc = ctx.createOscillator()
   osc.type = 'sine'
-  // Slightly randomize pitch for organic feel
-  const basePitch = 1800 + Math.random() * 200
+  const basePitch = 2400 + Math.random() * 100
   osc.frequency.setValueAtTime(basePitch, now)
-  osc.frequency.exponentialRampToValueAtTime(basePitch * 0.7, now + 0.015)
+  osc.frequency.exponentialRampToValueAtTime(basePitch * 0.8, now + 0.008)
   
   const gainNode = ctx.createGain()
-  gainNode.gain.setValueAtTime(0.012, now)
-  gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.015)
+  gainNode.gain.setValueAtTime(0.004, now)
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.008)
   
   osc.connect(gainNode)
   gainNode.connect(ctx.destination)
   osc.start(now)
-  osc.stop(now + 0.015)
-  
-  // Add a tiny click texture
-  const clickBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.003, ctx.sampleRate)
-  const clickData = clickBuffer.getChannelData(0)
-  for (let i = 0; i < clickData.length; i++) {
-    clickData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.0008))
-  }
-  
-  const clickSource = ctx.createBufferSource()
-  clickSource.buffer = clickBuffer
-  
-  const highpass = ctx.createBiquadFilter()
-  highpass.type = 'highpass'
-  highpass.frequency.value = 3000
-  
-  const clickGain = ctx.createGain()
-  clickGain.gain.setValueAtTime(0.008, now)
-  
-  clickSource.connect(highpass)
-  highpass.connect(clickGain)
-  clickGain.connect(ctx.destination)
-  clickSource.start(now)
+  osc.stop(now + 0.008)
 }
 
 // Ultra-subtle hover sound - barely perceptible
