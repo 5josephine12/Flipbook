@@ -14,6 +14,7 @@ interface FlipbookProps {
   direction: 'forward' | 'backward'
   mode: ViewMode
   animationMode?: AnimationMode
+  scrollVelocity?: number // 0.3 to 2.0, controls animation speed
   onScroll: (deltaY: number) => void
   className?: string
 }
@@ -24,6 +25,7 @@ export function Flipbook({
   isFlipping,
   direction,
   animationMode = 'classic',
+  scrollVelocity = 1,
   onScroll,
   className
 }: FlipbookProps) {
@@ -39,6 +41,7 @@ export function Flipbook({
     randomRotateZ?: number
     randomScale?: number
     randomDuration?: number
+    velocity: number // captured scroll velocity for this frame's animation
     phase?: 'front' | 'back' // for slide animation: starts in front, moves to back
   }>>([])
   const prevFrameRef = useRef(currentFrame)
@@ -78,6 +81,7 @@ export function Flipbook({
           randomRotateZ: (Math.random() - 0.5) * 4,
           randomScale: 0.9 + Math.random() * 0.08,
           randomDuration: 0.3 + Math.random() * 0.06,
+          velocity: scrollVelocity, // capture current scroll velocity for this animation
           phase: 'front' as const // start in front for slide animation
         }
         
@@ -103,7 +107,7 @@ export function Flipbook({
       }
     }
     prevFrameRef.current = currentFrame
-  }, [currentFrame, frames, animationMode])
+  }, [currentFrame, frames, animationMode, scrollVelocity])
   
   // Handle wheel/scroll
   const handleWheel = useCallback((e: WheelEvent) => {
@@ -133,32 +137,40 @@ export function Flipbook({
   const aspectRatio = currentFrameData.bitmap.width / currentFrameData.bitmap.height
   
   // Classic flying card animation - realistic page flip: rotate first (peel), then lift away
-  const getClassicFlyAnimation = (flying: typeof flyingFrames[0]) => ({
-    initial: {
-      x: 0,
-      y: 0,
-      rotateX: 0,
-      rotateZ: 0,
-      scale: 1,
-      opacity: 1,
-    },
-    animate: {
-      x: (flying.direction === 'forward' ? -15 : 15) + (flying.randomX || 0) * 0.5,
-      y: `${-90 + (flying.randomY || 0)}%`,
-      rotateX: (flying.randomRotateX || 70) + 15,
-      rotateZ: (flying.direction === 'forward' ? -1 : 1) * Math.abs(flying.randomRotateZ || 0),
-      scale: flying.randomScale || 0.9,
-      opacity: 0,
-      transition: {
-        duration: flying.randomDuration || 0.3,
-        rotateX: { duration: (flying.randomDuration || 0.3) * 0.6, ease: [0.22, 1, 0.36, 1] },
-        y: { duration: flying.randomDuration || 0.3, ease: [0.34, 1.2, 0.64, 1], delay: (flying.randomDuration || 0.3) * 0.1 },
-        x: { duration: flying.randomDuration || 0.3, ease: [0.34, 1.2, 0.64, 1], delay: (flying.randomDuration || 0.3) * 0.1 },
-        scale: { duration: (flying.randomDuration || 0.3) * 0.8, ease: [0.22, 1, 0.36, 1] },
-        opacity: { duration: (flying.randomDuration || 0.3) * 0.6, delay: (flying.randomDuration || 0.3) * 0.3, ease: 'easeIn' }
+  // Duration scales inversely with velocity: slow scroll = slow flip
+  const getClassicFlyAnimation = (flying: typeof flyingFrames[0]) => {
+    const baseTime = flying.randomDuration || 0.3
+    // Invert velocity: slow (0.3) becomes 1/0.3 = 3.3x longer, fast (2.0) becomes 1/2 = 0.5x shorter
+    // Clamp to reasonable range: 0.15s to 0.9s
+    const duration = Math.max(0.15, Math.min(0.9, baseTime / flying.velocity))
+    
+    return {
+      initial: {
+        x: 0,
+        y: 0,
+        rotateX: 0,
+        rotateZ: 0,
+        scale: 1,
+        opacity: 1,
+      },
+      animate: {
+        x: (flying.direction === 'forward' ? -15 : 15) + (flying.randomX || 0) * 0.5,
+        y: `${-90 + (flying.randomY || 0)}%`,
+        rotateX: (flying.randomRotateX || 70) + 15,
+        rotateZ: (flying.direction === 'forward' ? -1 : 1) * Math.abs(flying.randomRotateZ || 0),
+        scale: flying.randomScale || 0.9,
+        opacity: 0,
+        transition: {
+          duration,
+          rotateX: { duration: duration * 0.6, ease: [0.22, 1, 0.36, 1] },
+          y: { duration, ease: [0.34, 1.2, 0.64, 1], delay: duration * 0.1 },
+          x: { duration, ease: [0.34, 1.2, 0.64, 1], delay: duration * 0.1 },
+          scale: { duration: duration * 0.8, ease: [0.22, 1, 0.36, 1] },
+          opacity: { duration: duration * 0.6, delay: duration * 0.3, ease: 'easeIn' }
+        }
       }
     }
-  })
+  }
   
   // Waterfall/Giphoscope animation - cards cascade down like a waterfall
   const getWaterfallAnimation = (flying: typeof flyingFrames[0], index: number) => {
@@ -166,6 +178,10 @@ export function Flipbook({
     const rotateAmount = (flying.randomRotateZ || 0) + (index * 1.5)
     const scaleReduction = 1 - (index * 0.02)
     const opacityReduction = 1 - (index * 0.15)
+    
+    // Scale duration with velocity
+    const baseDuration = 0.6
+    const duration = Math.max(0.25, Math.min(1.2, baseDuration / flying.velocity))
     
     return {
       initial: { x: 0, y: 0, rotateZ: 0, rotateX: -15, scale: 1, opacity: 1 },
@@ -177,13 +193,13 @@ export function Flipbook({
         scale: scaleReduction,
         opacity: Math.max(0, opacityReduction - 0.1),
         transition: {
-          duration: 0.6,
+          duration,
           ease: [0.25, 0.46, 0.45, 0.94],
-          y: { duration: 0.55, ease: [0.34, 1.56, 0.64, 1] },
-          rotateZ: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
-          rotateX: { duration: 0.4, ease: 'easeOut' },
-          opacity: { duration: 0.4, delay: 0.2, ease: 'easeIn' },
-          scale: { duration: 0.5, ease: 'easeOut' }
+          y: { duration: duration * 0.92, ease: [0.34, 1.56, 0.64, 1] },
+          rotateZ: { duration: duration * 0.83, ease: [0.22, 1, 0.36, 1] },
+          rotateX: { duration: duration * 0.67, ease: 'easeOut' },
+          opacity: { duration: duration * 0.67, delay: duration * 0.33, ease: 'easeIn' },
+          scale: { duration: duration * 0.83, ease: 'easeOut' }
         }
       }
     }
@@ -195,6 +211,10 @@ export function Flipbook({
     const directionMultiplier = flying.direction === 'forward' ? -1 : 1
     const sideDistance = 100 // how far to the side
     const liftHeight = -40 // how high to lift (negative = up)
+    
+    // Scale duration with velocity
+    const baseDuration = 0.65
+    const duration = Math.max(0.3, Math.min(1.3, baseDuration / flying.velocity))
     
     return {
       initial: { 
@@ -210,7 +230,7 @@ export function Flipbook({
         scale: [1, 1.03, 1.02, 1, 0.99],
         opacity: 1,
         transition: {
-          duration: 0.65,
+          duration,
           times: [0, 0.25, 0.45, 0.7, 1],
           ease: 'easeInOut',
           x: { ease: [0.4, 0, 0.2, 1] },

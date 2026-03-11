@@ -315,6 +315,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                   direction={flipbook.direction}
                   mode="flipbook"
                   animationMode={animationMode}
+                  scrollVelocity={flipbook.scrollVelocity}
                   onScroll={flipbook.handleScroll}
                   className="w-full h-full"
                 />
@@ -561,6 +562,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
                 direction={flipbook.direction}
                 mode="flipbook"
                 animationMode={animationMode}
+                scrollVelocity={flipbook.scrollVelocity}
                 onScroll={flipbook.handleScroll}
                 className="w-full h-full max-w-[80vw] max-h-[70vh]"
               />

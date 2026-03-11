@@ -33,6 +33,7 @@ export function useFlipbook({ frames, mode, onFrameChange }: UseFlipbookOptions)
   const playbackIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
+  const [scrollVelocity, setScrollVelocity] = useState(1) // normalized 0.2 to 2.0
   
   // Clamp frame to valid range
   const clampFrame = useCallback((frame: number) => {
@@ -128,12 +129,21 @@ export function useFlipbook({ frames, mode, onFrameChange }: UseFlipbookOptions)
       
       const targetFrame = clampFrame(state.currentFrame + direction * framesToFlip)
       
-      // Calculate velocity based on scroll speed
-      const velocity = Math.min(Math.abs(deltaY) / (timeDelta || 16), 10)
+      // Calculate velocity based on scroll speed (pixels per ms)
+      // Slow scroll: ~1-3 px/ms, Fast scroll: ~10-30 px/ms
+      const rawVelocity = Math.abs(deltaY) / Math.max(timeDelta, 8)
+      
+      // Normalize to a multiplier: 0.3 (very slow) to 2.0 (fast)
+      // At ~2 px/ms = 0.3x speed (slow, deliberate)
+      // At ~15 px/ms = 1.0x speed (normal)
+      // At ~30+ px/ms = 2.0x speed (fast flicking)
+      const normalizedVelocity = Math.max(0.3, Math.min(2.0, rawVelocity / 15))
+      
+      setScrollVelocity(normalizedVelocity)
       
       setState(prev => ({
         ...prev,
-        velocity
+        velocity: rawVelocity
       }))
       
       // Always animate smoothly (no animation skip)
@@ -227,6 +237,7 @@ export function useFlipbook({ frames, mode, onFrameChange }: UseFlipbookOptions)
     frameCount,
     isPlaying,
     playbackSpeed,
+    scrollVelocity,
     goToFrame,
     handleScroll,
     setIsPlaying,
