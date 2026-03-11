@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Trash2, FolderOpen, Download, Upload } from 'lucide-react'
+import { Trash2, FolderOpen, Download } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { playSoundIfEnabled } from '@/lib/sounds'
@@ -21,7 +21,6 @@ interface GalleryPreview {
 
 interface GalleryProps {
   onSelect: (id: string) => void
-  onUpload?: () => void
   className?: string
   refreshTrigger?: number
 }
@@ -254,7 +253,7 @@ function DefaultGifCard({
   )
 }
 
-export function Gallery({ onSelect, onUpload, className, refreshTrigger }: GalleryProps) {
+export function Gallery({ onSelect, className, refreshTrigger }: GalleryProps) {
   const [items, setItems] = useState<GalleryPreview[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; title: string } | null>(null)
@@ -472,42 +471,6 @@ export function Gallery({ onSelect, onUpload, className, refreshTrigger }: Galle
           </motion.div>
         )}
       </AnimatePresence>
-      
-      {/* Upload button - first item in gallery */}
-      {onUpload && (
-        <div className="mb-4">
-          <motion.button
-            initial={{ opacity: 0, y: 24, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-            onClick={() => { playSoundIfEnabled('click'); onUpload() }}
-            className={cn(
-              "w-full p-8 rounded-xl",
-              "flex flex-col items-center justify-center gap-3",
-              "bg-[var(--recess)]",
-              "border-2 border-dashed border-[var(--border)]",
-              "shadow-[inset_0_2px_4px_-1px_rgba(0,0,0,0.1),inset_0_1px_2px_-1px_rgba(0,0,0,0.06)]",
-              "dark:shadow-[inset_0_2px_4px_-1px_rgba(0,0,0,0.3),inset_0_1px_2px_-1px_rgba(0,0,0,0.2)]",
-              "hover:border-[var(--muted-foreground)] hover:bg-[var(--recess)]/80",
-              "transition-all duration-200",
-              "cursor-pointer group"
-            )}
-          >
-            <div className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center",
-              "bg-gradient-to-b from-[var(--module)] to-[var(--card)]",
-              "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_-1px_0_0_rgba(0,0,0,0.03)_inset,0_2px_6px_-2px_rgba(0,0,0,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)]",
-              "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_-1px_0_0_rgba(0,0,0,0.1)_inset,0_2px_6px_-2px_rgba(0,0,0,0.3),0_1px_3px_-1px_rgba(0,0,0,0.2)]",
-              "group-hover:scale-105 transition-transform duration-200"
-            )}>
-              <Upload className="w-5 h-5 text-[var(--foreground)]" />
-            </div>
-            <span className="text-sm font-medium text-[var(--muted-foreground)] group-hover:text-[var(--foreground)] transition-colors">
-              Upload GIF
-            </span>
-          </motion.button>
-        </div>
-      )}
       
       {/* Masonry-style gallery */}
       <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">

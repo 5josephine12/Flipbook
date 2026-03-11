@@ -60,13 +60,7 @@ export default function Home() {
     }
   }, [])
   
-  const handleGalleryUpload = useCallback(() => {
-    setActiveTab('viewer')
-    // Small delay to ensure viewer is mounted before triggering upload
-    setTimeout(() => {
-      viewerRef.current?.upload()
-    }, 100)
-  }, [])
+  
   
 
   
@@ -138,7 +132,6 @@ export default function Home() {
               >
                 <Gallery 
                   onSelect={handleGallerySelect}
-                  onUpload={handleGalleryUpload}
                   refreshTrigger={galleryRefresh}
                 />
               </motion.div>
@@ -259,12 +252,15 @@ export default function Home() {
                   <HardwareButton3D
                     variant="ghost"
                     size="icon"
-                    onClick={() => viewerRef.current?.upload()}
+                    onClick={() => {
+                      if (activeTab === 'gallery') {
+                        setActiveTab('viewer')
+                        setTimeout(() => viewerRef.current?.upload(), 100)
+                      } else {
+                        viewerRef.current?.upload()
+                      }
+                    }}
                     hapticType="light"
-                    disabled={activeTab !== 'viewer'}
-                    className={cn(
-                      activeTab !== 'viewer' && "opacity-30 pointer-events-none"
-                    )}
                   >
                     <Upload className="w-[1em] h-[1em]" />
                   </HardwareButton3D>
