@@ -371,7 +371,7 @@ export default function Home() {
                     </p>
                     
                     <p>
-                      What works best: GIFs with smooth motion, hand-drawn animations, stop-motion, or anything with satisfying frame-to-frame progression. Cinemagraphs and subtle loops are particularly beautiful here.
+                      What works best: GIFs with smooth motion, hand-drawn animations, stop-motion, or anything with satisfying frame-to-frame progression. Zoom-in sequences and subtle loops are particularly beautiful here.
                     </p>
                     
                     <p>
