@@ -10,7 +10,9 @@ import { Viewer, type ViewerHandle } from '@/components/viewer'
 import { LoadingScreen } from '@/components/viewer/loading-screen'
 import { Gallery } from '@/components/gallery'
 import { HardwareButton3D } from '@/components/hardware-shell'
-import { getHighlight } from '@/lib/highlights-store'
+import { getHighlight, saveHighlight } from '@/lib/highlights-store'
+import { useGifDecoder } from '@/hooks/use-gif-decoder'
+import { toast } from 'sonner'
 import { haptic } from '@/lib/haptics'
 import { playSoundIfEnabled } from '@/lib/sounds'
 import type { GifData } from '@/lib/gif-types'
@@ -30,7 +32,9 @@ export default function Home() {
   const [showAbout, setShowAbout] = useState(false)
   
   const viewerRef = useRef<ViewerHandle>(null)
+  const galleryFileInputRef = useRef<HTMLInputElement>(null)
   const [viewerState, setViewerState] = useState({ hasContent: false, isSaved: false, isLoading: false, loadingProgress: 0 })
+  const galleryDecoder = useGifDecoder()
   
   
   
@@ -39,6 +43,29 @@ export default function Home() {
   }, [])
   
   const [initialUrl, setInitialUrl] = useState<string | null>(null)
+  
+  const handleGalleryUpload = useCallback(async (file: File) => {
+    try {
+      const data = await galleryDecoder.decode(file)
+      if (data) {
+        await saveHighlight(data.metadata, data.frames)
+        setGalleryRefresh(prev => prev + 1)
+        toast.success('Added to Gallery')
+        haptic('success')
+        playSoundIfEnabled('toggle')
+      }
+    } catch {
+      toast.error('Failed to upload')
+    }
+  }, [galleryDecoder])
+  
+  const handleGalleryFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file && file.type === 'image/gif') {
+      handleGalleryUpload(file)
+    }
+    e.target.value = ''
+  }, [handleGalleryUpload])
   
   const handleGallerySelect = useCallback(async (id: string) => {
     if (id.startsWith('url:')) {
@@ -254,8 +281,7 @@ export default function Home() {
                     size="icon"
                     onClick={() => {
                       if (activeTab === 'gallery') {
-                        setActiveTab('viewer')
-                        setTimeout(() => viewerRef.current?.upload(), 100)
+                        galleryFileInputRef.current?.click()
                       } else {
                         viewerRef.current?.upload()
                       }
@@ -265,7 +291,9 @@ export default function Home() {
                     <Upload className="w-[1em] h-[1em]" />
                   </HardwareButton3D>
                 </TooltipTrigger>
-                <TooltipContent>Upload GIF</TooltipContent>
+                <TooltipContent>
+                  {activeTab === 'gallery' ? 'Add to Gallery' : 'Upload GIF'}
+                </TooltipContent>
               </Tooltip>
               
               {/* Fullscreen button */}
@@ -326,6 +354,15 @@ export default function Home() {
           </TooltipProvider>
         </div>
       </nav>
+      
+      {/* Hidden file input for gallery uploads */}
+      <input
+        ref={galleryFileInputRef}
+        type="file"
+        accept=".gif,image/gif"
+        onChange={handleGalleryFileInputChange}
+        className="hidden"
+      />
       
       <Toaster position="top-center" />
       
