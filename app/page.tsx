@@ -371,6 +371,10 @@ export default function Home() {
                     </p>
                     
                     <p>
+                      I crave the tactility of physical forms of art and products that you rarely find in software. You can see this bleed through my explorations in microanimations, rendering of the UI, texture, and the overall feel of this project.
+                    </p>
+                    
+                    <p>
                       What works best: GIFs with smooth motion, hand-drawn animations, stop-motion, or anything with satisfying frame-to-frame progression. Zoom-in sequences and subtle loops are particularly beautiful here.
                     </p>
                     
