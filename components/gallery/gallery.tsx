@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Trash2, FolderOpen, Download } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { showToast, showErrorToast } from '@/lib/styled-toast'
 import { playSoundIfEnabled } from '@/lib/sounds'
 import { getAllHighlights, deleteHighlight, DEFAULT_GALLERY_GIFS } from '@/lib/highlights-store'
 import { HardwareButton3D } from '@/components/hardware-shell'
@@ -248,7 +248,7 @@ export function Gallery({ onSelect, className, refreshTrigger }: GalleryProps) {
       setItems(data)
     } catch (error) {
       console.error('[v0] Failed to load gallery:', error)
-      showErrorToast('Failed to load gallery')
+      toast.error('Failed to load gallery')
     } finally {
       setIsLoading(false)
     }
@@ -268,11 +268,11 @@ export function Gallery({ onSelect, className, refreshTrigger }: GalleryProps) {
       await deleteHighlight(deleteConfirm.id)
       setItems(prev => prev.filter(h => h.id !== deleteConfirm.id))
       playSoundIfEnabled('toggle')
-      showToast('Removed from gallery.')
+      toast.success('Removed from gallery')
       setDeleteConfirm(null)
     } catch {
       playSoundIfEnabled('click')
-      showErrorToast('Failed to delete')
+      toast.error('Failed to delete')
     }
   }, [deleteConfirm])
   
@@ -302,11 +302,11 @@ export function Gallery({ onSelect, className, refreshTrigger }: GalleryProps) {
       URL.revokeObjectURL(downloadUrl)
       
       playSoundIfEnabled('toggle')
-      showToast('Downloaded GIF.')
+      toast.success('Downloaded GIF')
     } catch (error) {
       console.error('Download failed:', error)
       playSoundIfEnabled('click')
-      showErrorToast('Failed to download')
+      toast.error('Failed to download')
     }
   }, [])
   
@@ -319,7 +319,7 @@ export function Gallery({ onSelect, className, refreshTrigger }: GalleryProps) {
       const frames = item.frames
       if (frames.length === 0) {
         playSoundIfEnabled('click')
-        showErrorToast('No frames to download')
+        toast.error('No frames to download')
         return
       }
       
@@ -340,7 +340,7 @@ export function Gallery({ onSelect, className, refreshTrigger }: GalleryProps) {
       canvas.toBlob((blob) => {
         if (!blob) {
           playSoundIfEnabled('click')
-          showErrorToast('Failed to create download')
+          toast.error('Failed to create download')
           return
         }
         
@@ -354,12 +354,12 @@ export function Gallery({ onSelect, className, refreshTrigger }: GalleryProps) {
         URL.revokeObjectURL(url)
         
         playSoundIfEnabled('toggle')
-        showToast('Downloaded first frame.')
+        toast.success('Downloaded first frame')
       }, 'image/png')
     } catch (error) {
       console.error('Download failed:', error)
       playSoundIfEnabled('click')
-      showErrorToast('Failed to download')
+      toast.error('Failed to download')
     }
   }, [])
   

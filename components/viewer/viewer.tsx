@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Play, Pause, SkipBack, SkipForward, ChevronFirst, ChevronLast, Upload, Maximize2, Minimize2, X, Layers, Wind, CreditCard } from 'lucide-react'
-import { showToast, showErrorToast, showActionToast } from '@/lib/styled-toast'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { useGifDecoder } from '@/hooks/use-gif-decoder'
 import { useFlipbook } from '@/hooks/use-flipbook'
@@ -168,27 +168,28 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(function Viewer({ cl
       setIsSaved(true)
       haptic('success')
       playSoundIfEnabled('toggle')
-      showActionToast({
-        message: 'GIF saved to your gallery.',
-        actionLabel: 'Undo',
-        onAction: async () => {
-          try {
-            await deleteHighlight(savedId)
-            setIsSaved(false)
-            haptic('light')
-            playSoundIfEnabled('toggle')
-            showToast('Removed from gallery.')
-            onGallerySaved?.()
-          } catch {
-            playSoundIfEnabled('click')
-            showErrorToast('Failed to undo')
+      toast.success('Saved to Gallery', {
+        action: {
+          label: 'Undo',
+          onClick: async () => {
+            try {
+              await deleteHighlight(savedId)
+              setIsSaved(false)
+              haptic('light')
+              playSoundIfEnabled('toggle')
+              toast.success('Removed from Gallery')
+              onGallerySaved?.()
+            } catch {
+              playSoundIfEnabled('click')
+              toast.error('Failed to undo')
+            }
           }
         }
       })
       onGallerySaved?.()
     } catch {
       playSoundIfEnabled('click')
-      showErrorToast('Failed to save')
+      toast.error('Failed to save')
     }
   }, [metadata, frames, onGallerySaved])
   
