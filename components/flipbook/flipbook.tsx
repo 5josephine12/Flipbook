@@ -52,7 +52,7 @@ export function Flipbook({
       case 'waterfall':
         return { maxFrames: WATERFALL_VISIBLE_COUNT, cleanupTime: 800 }
       case 'slide':
-        return { maxFrames: 3, cleanupTime: 650 }
+        return { maxFrames: 3, cleanupTime: 550 }
       default:
         return { maxFrames: 2, cleanupTime: 450 }
     }
@@ -88,13 +88,13 @@ export function Flipbook({
         
         const flyingId = newFlying.id
         
-        // For slide animation: transition from front to back after the lift+slide phase
+        // For slide animation: transition from front to back after slide reaches max
         if (animationMode === 'slide') {
           setTimeout(() => {
             setFlyingFrames(prev => prev.map(f => 
               f.id === flyingId ? { ...f, phase: 'back' as const } : f
             ))
-          }, 330) // 60% of 0.55s animation = when it moves behind
+          }, 275) // 55% of 0.5s animation = when it starts returning
         }
         
         setTimeout(() => {
@@ -189,36 +189,30 @@ export function Flipbook({
     }
   }
   
-  // Slide animation - realistic card dealing: lift up, slide to side, then back to bottom of deck
+  // Slide animation - clean card dealing: lift, slide to side, settle behind
   const getSlideAnimation = (flying: typeof flyingFrames[0], index: number) => {
     const directionMultiplier = flying.direction === 'forward' ? -1 : 1
-    const slideDistance = 60 + index * 10
-    const liftAmount = -25 // lift up first (negative = up)
-    const settleAmount = 8 + index * 3 // settle down behind stack
+    const slideDistance = 55
+    const liftAmount = -20 // lift up (negative = up)
+    const settleAmount = 6 + index * 2 // settle behind stack
     
     return {
       initial: { 
         x: 0, 
         y: 0, 
         scale: 1, 
-        opacity: 1,
-        rotateZ: 0
+        opacity: 1
       },
       animate: {
-        // Keyframe animation: lift -> slide -> settle back
-        x: [0, 0, slideDistance * directionMultiplier, slideDistance * directionMultiplier * 0.3],
-        y: [0, liftAmount, liftAmount * 0.5, settleAmount],
-        scale: [1, 1.02, 0.98, 0.95 - index * 0.02],
-        rotateZ: [0, directionMultiplier * -2, directionMultiplier * 3, 0],
-        opacity: [1, 1, 0.9, Math.max(0, 0.7 - index * 0.25)],
+        // Clean keyframe animation: lift -> slide out -> return behind
+        x: [0, 0, slideDistance * directionMultiplier, 0],
+        y: [0, liftAmount, liftAmount * 0.3, settleAmount],
+        scale: [1, 1.01, 0.99, 0.97 - index * 0.01],
+        opacity: [1, 1, 1, Math.max(0, 0.6 - index * 0.2)],
         transition: {
-          duration: 0.55,
-          times: [0, 0.2, 0.6, 1], // keyframe timing
-          ease: [0.22, 1, 0.36, 1],
-          x: { ease: [0.32, 0.72, 0, 1] },
-          y: { ease: [0.34, 1.2, 0.64, 1] },
-          scale: { ease: 'easeInOut' },
-          rotateZ: { ease: 'easeInOut' }
+          duration: 0.5,
+          times: [0, 0.15, 0.55, 1], // quick lift, hold slide, smooth return
+          ease: 'easeInOut'
         }
       }
     }
