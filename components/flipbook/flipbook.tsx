@@ -137,12 +137,12 @@ export function Flipbook({
   const aspectRatio = currentFrameData.bitmap.width / currentFrameData.bitmap.height
   
   // Classic flying card animation - realistic page flip: rotate first (peel), then lift away
-  // Duration scales inversely with velocity: slow scroll = slow flip
+  // Duration scales with velocity: slow scroll = slow flip, normal = fast flip
   const getClassicFlyAnimation = (flying: typeof flyingFrames[0]) => {
     const baseTime = flying.randomDuration || 0.3
-    // Invert velocity: slow (0.3) becomes 1/0.3 = 3.3x longer, fast (2.0) becomes 1/2 = 0.5x shorter
-    // Clamp to reasonable range: 0.15s to 0.9s
-    const duration = Math.max(0.15, Math.min(0.9, baseTime / flying.velocity))
+    // At velocity 1.0 (normal) = baseTime
+    // At velocity 0.4 (very slow) = baseTime / 0.4 = 2.5x longer
+    const duration = Math.max(0.2, Math.min(0.75, baseTime / flying.velocity))
     
     return {
       initial: {
@@ -179,9 +179,9 @@ export function Flipbook({
     const scaleReduction = 1 - (index * 0.02)
     const opacityReduction = 1 - (index * 0.15)
     
-    // Scale duration with velocity
+    // Scale duration with velocity (only slows down for deliberate slow scrolling)
     const baseDuration = 0.6
-    const duration = Math.max(0.25, Math.min(1.2, baseDuration / flying.velocity))
+    const duration = Math.max(0.35, Math.min(1.0, baseDuration / flying.velocity))
     
     return {
       initial: { x: 0, y: 0, rotateZ: 0, rotateX: -15, scale: 1, opacity: 1 },
@@ -212,9 +212,9 @@ export function Flipbook({
     const sideDistance = 100 // how far to the side
     const liftHeight = -40 // how high to lift (negative = up)
     
-    // Scale duration with velocity
+    // Scale duration with velocity (only slows down for deliberate slow scrolling)
     const baseDuration = 0.65
-    const duration = Math.max(0.3, Math.min(1.3, baseDuration / flying.velocity))
+    const duration = Math.max(0.4, Math.min(1.1, baseDuration / flying.velocity))
     
     return {
       initial: { 
