@@ -330,7 +330,7 @@ export default function Home() {
                 "shadow-[0_1px_0_0_rgba(255,255,255,0.4)_inset,0_-1px_2px_0_rgba(0,0,0,0.05)_inset,0_12px_32px_-8px_rgba(0,0,0,0.25),0_4px_8px_-4px_rgba(0,0,0,0.15)]",
                 "dark:shadow-[0_1px_0_0_rgba(255,255,255,0.05)_inset,0_-1px_2px_0_rgba(0,0,0,0.2)_inset,0_12px_32px_-8px_rgba(0,0,0,0.6),0_4px_8px_-4px_rgba(0,0,0,0.4)]",
                 // Scale down on very small screens
-                "max-h-[90vh] overflow-y-auto"
+                "max-h-[90vh]"
               )}
               style={{
                 fontSize: 'clamp(10px, 2.5vw, 16px)'
@@ -360,18 +360,14 @@ export default function Home() {
                 </button>
                 
                 {/* Manifesto content - uses em units to scale with container font-size */}
-                <div className="space-y-[1.2em] sm:space-y-[1.4em] md:space-y-[1.6em] text-[1em] sm:text-[0.95em] md:text-[0.9375em] leading-relaxed text-muted-foreground">
+                <div className="space-y-[1em] sm:space-y-[1.2em] md:space-y-[1.4em] text-[1em] sm:text-[0.95em] md:text-[0.9375em] leading-relaxed text-muted-foreground">
                   <h2 className="text-[1.4em] sm:text-[1.6em] md:text-[1.875em] font-normal text-foreground tracking-tight pr-6">
                     Digital Flipbook
                   </h2>
                   
-                  <div className="space-y-[0.9em] sm:space-y-[1em] md:space-y-[1.2em]">
+                  <div className="space-y-[0.75em] sm:space-y-[0.85em] md:space-y-[1em]">
                     <p>
-                      I built this because I wanted to slow down and appreciate GIFs the way they deserve. Frame by frame, like flipping through a physical flipbook. There is something magical about having control over the animation.
-                    </p>
-                    
-                    <p>
-                      I crave the tactility of physical forms of art and products that you rarely find in software. You can see this bleed through my explorations in microanimations, rendering of the UI, texture, and the overall feel of this project.
+                      I built this because I wanted to slow down and appreciate GIFs the way they deserve. Frame by frame, like flipping through a physical flipbook. There is something magical about having control over the animation. I crave the tactility of physical forms of art and products that you rarely find in software—you can see this bleed through the microanimations, UI rendering, and texture throughout this project.
                     </p>
                     
                     <p>
@@ -379,15 +375,11 @@ export default function Home() {
                     </p>
                     
                     <p>
-                      Simply scroll away or drag the scrubber to flip through frames. Try the filmstrip to jump to specific moments. Save your favorites to build a collection.
-                    </p>
-                    
-                    <p>
-                      This is an invitation to play around.
+                      Scroll or drag the scrubber to flip through frames. Try the filmstrip to jump to specific moments. Save your favorites to build a collection. This is an invitation to play around.
                     </p>
                   </div>
                   
-                  <div className="pt-[0.8em] sm:pt-[1em] md:pt-[1.2em] border-t border-[var(--border)]/50 space-y-[0.3em] sm:space-y-[0.4em]">
+                  <div className="pt-[0.6em] sm:pt-[0.8em] md:pt-[1em] border-t border-[var(--border)]/50 space-y-[0.2em] sm:space-y-[0.3em]">
                     <p>
                       Built by{' '}
                       <a 
